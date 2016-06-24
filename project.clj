@@ -10,6 +10,7 @@
                  [org.domaindrivenarchitecture/dda-pallet "0.1.0-SNAPSHOT"]
                  [org.domaindrivenarchitecture/dda-iptables-crate "0.2.5-SNAPSHOT"]
                  ]
+  :plugins [[lein-sub "0.3.0"]]
   :profiles {:dev
              {:dependencies
               [[com.palletops/pallet "0.8.12" :classifier "tests"]
