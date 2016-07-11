@@ -162,10 +162,9 @@
   "installation of hardening crate"
   [config :- HardeningConfig]
   (install-unattended-upgrades)
-  (when (contains? :iptables config)
-    ; TODO review jem 2016.06.22: migrate iptables to dda-pallet
+  (when (contains? [:iptables] config)
     (iptables/install "iptables" {}))
-  (when (contains? :ossec config)
+  (when (contains? [:ossec] config)
     (install-ossec (get-in config [:ossec])))
   )
 
