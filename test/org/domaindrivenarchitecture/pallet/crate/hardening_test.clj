@@ -24,5 +24,5 @@
 (deftest the-whole
   (testing 
     "test plan creation" 
-      (is (map? sut/with-hardening))
-      ))
+      (is sut/with-hardening))
+  )

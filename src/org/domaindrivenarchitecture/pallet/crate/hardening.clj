@@ -162,9 +162,9 @@
   "installation of hardening crate"
   [config :- HardeningConfig]
   (install-unattended-upgrades)
-  (when (contains? [:iptables] config)
+  (when (contains? config :iptables)
     (iptables/install "iptables" {}))
-  (when (contains? [:ossec] config)
+  (when (contains? config :ossec)
     (install-ossec (get-in config [:ossec])))
   )
 
@@ -172,14 +172,14 @@
   "configuration of hardening crate"
   [config :- HardeningConfig]
   (configure-sshd)
-  (when (contains? :iptables config)
+  (when (contains? config :iptables)
     ; TODO review jem 2016.06.22: migrate iptables to dda-pallet & schema
     (let [iptables-config (get-in config [:iptables])
           rules (if (get-in iptables-config [:default])
                   {}
                   {:rules (get-in iptables-config [:custom-rules])})]
     (iptables/configure "iptables" rules)))
-  (when (contains? :ossec config)
+  (when (contains? config :ossec)
     (configure-ossec (get-in config [:ossec])))
   )
 
