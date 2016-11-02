@@ -1,4 +1,4 @@
-(defproject org.domaindrivenarchitecture/dda-hardening-crate "0.1.0-SNAPSHOT"
+(defproject org.domaindrivenarchitecture/dda-hardening-crate "0.1.0"
   :description "The dda collected crate"
   :url "https://www.domaindrivenarchitecture.org"
   :pallet {:source-paths ["src"]}
@@ -7,14 +7,14 @@
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [com.palletops/pallet "0.8.12"]
                  [com.palletops/stevedore "0.8.0-beta.7"]
-                 [org.domaindrivenarchitecture/dda-pallet "0.1.0"]
-                 [org.domaindrivenarchitecture/dda-iptables-crate "0.2.5-SNAPSHOT"]
+                 [org.domaindrivenarchitecture/dda-pallet "0.1.1"]
+                 [org.domaindrivenarchitecture/dda-iptables-crate "0.2.5"]
                  ]
   :plugins [[lein-sub "0.3.0"]]
   :profiles {:dev
              {:dependencies
               [[com.palletops/pallet "0.8.12" :classifier "tests"]
-               [org.domaindrivenarchitecture/dda-pallet-commons "0.1.3" :classifier "tests"]]
+               [org.domaindrivenarchitecture/dda-pallet-commons "0.2.0" :classifier "tests"]]
               :plugins
               [[com.palletops/pallet-lein "0.8.0-alpha.1"]]}
               :leiningen/reply
