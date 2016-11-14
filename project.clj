@@ -7,7 +7,7 @@
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [com.palletops/pallet "0.8.12"]
                  [com.palletops/stevedore "0.8.0-beta.7"]
-                 [org.domaindrivenarchitecture/dda-pallet "0.1.1"]
+                 [org.domaindrivenarchitecture/dda-pallet "0.2.0-SNAPSHOT"]
                  [org.domaindrivenarchitecture/dda-iptables-crate "0.2.5"]
                  ]
   :plugins [[lein-sub "0.3.0"]]
