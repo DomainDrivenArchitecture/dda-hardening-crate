@@ -1,4 +1,4 @@
-(defproject org.domaindrivenarchitecture/dda-hardening-crate "0.1.1"
+(defproject org.domaindrivenarchitecture/dda-hardening-crate "0.1.2-SNAPSHOT"
   :description "The dda collected crate"
   :url "https://www.domaindrivenarchitecture.org"
   :pallet {:source-paths ["src"]}
