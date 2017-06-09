@@ -19,7 +19,6 @@
    [clojure.string :as string]
    [schema.core :as s]
    [pallet.actions :as actions]
-   [pallet.api :as api]
    [pallet.crate :as crate]
    [pallet.stevedore :as stevedore]
    [dda.pallet.core.dda-crate :as dda-crate]
@@ -194,6 +193,3 @@
   facility [dda-crate partial-effective-config]
   (let [config (dda-crate/merge-config dda-crate partial-effective-config)]
     (configure config)))
-
-(def with-hardening
-  (dda-crate/create-server-spec dda-hardening-crate))

@@ -15,10 +15,10 @@
 ; limitations under the License.
 
 
-(ns dda.pallet.crate.hardening-test
+(ns dda.pallet.domain.hardening-test
   (:require
     [clojure.test :refer :all]
-    [dda.pallet.crate.hardening :as sut]))
+    [dda.pallet.domain.hardening :as sut]))
 
 
 (deftest the-whole

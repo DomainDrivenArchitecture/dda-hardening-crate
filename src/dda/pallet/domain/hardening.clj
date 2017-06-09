@@ -17,8 +17,7 @@
 (ns dda.pallet.domain.hardening
  (:require
    [schema.core :as s]
-   [pallet.api :as api]
-   [dda.pallet.crate.config :as config-crate]
+   [dda.pallet.core.dda-crate :as dda-crate]
    [dda.pallet.crate.hardening :as hardening-crate]))
 
 (def HardeningDomainConfig
@@ -39,10 +38,5 @@
          {hardening-crate/facility
            {:iptables {:default true}}}}}))
 
-(s/defn ^:always-validate dda-hardening-group
- [stack-config :- HardeningCrateStackConfig]
- (let [group-name (name (key (first (:group-specific-config stack-config))))]
-   (api/group-spec
-    group-name
-    :extends [(config-crate/with-config stack-config)
-              hardening-crate/with-hardening])))
+(def with-hardening
+ (dda-crate/create-server-spec hardening-crate/dda-hardening-crate))
