@@ -15,14 +15,13 @@
 ; limitations under the License.
 
 
-(ns org.domaindrivenarchitecture.pallet.crate.hardening-test
+(ns dda.pallet.crate.hardening-test
   (:require
     [clojure.test :refer :all]
-    [org.domaindrivenarchitecture.pallet.crate.hardening :as sut]
-    ))
+    [dda.pallet.crate.hardening :as sut]))
+
 
 (deftest the-whole
-  (testing 
-    "test plan creation" 
-      (is sut/with-hardening))
-  )
+  (testing
+    "test plan creation"
+      (is sut/with-hardening)))
