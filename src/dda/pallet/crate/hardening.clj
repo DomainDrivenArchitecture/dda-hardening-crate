@@ -25,22 +25,24 @@
    [dda.pallet.core.dda-crate :as dda-crate]
    [dda.pallet.crate.iptables :as iptables]))
 
+(def facility :dda-hardening)
+(def version [0 2 0])
 
 (def OssecConfig {:server-ip s/Str
                    :agent-key s/Str})
 
 (def HardeningConfig {(s/optional-key :ossec) OssecConfig
                       (s/optional-key :iptables)
-                      {:default s/Bool
-                       (s/optional-key :custom-rules) [s/Str]}})
+                      {:default s/Bool (s/optional-key :custom-rules) [s/Str]}})
+
 
 (def default-config
   {:iptables {:default true}})
 
 (def dda-hardening-crate
   (dda-crate/make-dda-crate
-    :facility :dda-hardening
-    :version [0 1 0]
+    :facility facility
+    :version version
     :config-schema HardeningConfig
     :config-default default-config))
 
@@ -184,12 +186,12 @@
 
 
 (defmethod dda-crate/dda-install
-  :dda-hardening [dda-crate partial-effective-config]
+  facility [dda-crate partial-effective-config]
   (let [config (dda-crate/merge-config dda-crate partial-effective-config)]
     (install config)))
 
 (defmethod dda-crate/dda-configure
-  :dda-hardening [dda-crate partial-effective-config]
+  facility [dda-crate partial-effective-config]
   (let [config (dda-crate/merge-config dda-crate partial-effective-config)]
     (configure config)))
 
