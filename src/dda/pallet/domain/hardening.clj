@@ -27,7 +27,8 @@
 
 (def HardeningCrateStackConfig
   {:group-specific-config
-   {s/Keyword {hardening-crate/facility hardening-crate/HardeningConfig}}})
+   {s/Keyword {hardening-crate/facility
+               hardening-crate/HardeningConfig}}})
 
 (defn crate-stack-configuration [domain-config
                                  & {:keys [group-key] :or {group-key :dda-hardening-group}}]
@@ -38,7 +39,7 @@
      {:group-specific-config
         {group-key
          {hardening-crate/facility
-           {:iptables {:default true}}}}}))
+          {:iptables {:default true}}}}}))
 
 (def with-hardening
  (dda-crate/create-server-spec hardening-crate/dda-hardening-crate))

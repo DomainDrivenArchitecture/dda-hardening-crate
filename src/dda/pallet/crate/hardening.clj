@@ -20,17 +20,16 @@
    [schema.core :as s]
    [pallet.actions :as actions]
    [pallet.crate :as crate]
-   [pallet.stevedore :as stevedore]
-   [dda.pallet.core.dda-crate :as dda-crate]
-   [dda.pallet.crate.iptables :as iptables]))
+   [dda.pallet.crate.dda-hardening-crate.iptables-app :as iptables]
+   [dda.pallet.crate.dda-hardening-crate.iptables-config :as iptables-config]
+   [dda.pallet.crate.dda-hardening-crate.ossec :as ossec]
+   [dda.pallet.crate.dda-hardening-crate.sshd :as sshd]
+   [dda.pallet.core.dda-crate :as dda-crate]))
 
 (def facility :dda-hardening)
 (def version [0 2 0])
 
-(def OssecConfig {:server-ip s/Str
-                   :agent-key s/Str})
-
-(def HardeningConfig {(s/optional-key :ossec) OssecConfig
+(def HardeningConfig {(s/optional-key :ossec) ossec/OssecConfig
                       (s/optional-key :iptables)
                       {:default s/Bool (s/optional-key :custom-rules) [s/Str]}})
 
@@ -45,143 +44,30 @@
     :config-schema HardeningConfig
     :config-default default-config))
 
-
-(defn ossec-agent-configuration
-  [ossec-server-ip]
-  ["<!------ Managed by pallet ------->"
-   "<ossec_config>"
-   "<client>"
-   (str "  <server-ip>" ossec-server-ip "</server-ip>")
-   "</client>"
-   ""
-   "<syscheck>"
-   "  <!-- Frequency that syscheck is executed -- default every 2 hours -->"
-   "  <frequency>7200</frequency>"
-   "  "
-   "  <!-- Directories to check  (perform all possible verifications) -->"
-   "  <directories check_all=\"yes\">/etc,/usr/bin,/usr/sbin</directories>"
-   "  <directories check_all=\"yes\">/bin,/sbin</directories>"
-   "  "
-   "  <!-- Files/directories to ignore -->"
-   "  <ignore>/etc/mtab</ignore>"
-   "  <ignore>/etc/hosts.deny</ignore>"
-   "  <ignore>/etc/mail/statistics</ignore>"
-   "  <ignore>/etc/random-seed</ignore>"
-   "  <ignore>/etc/adjtime</ignore>"
-   "  <ignore>/etc/httpd/logs</ignore>"
-   "</syscheck>"
-   ""
-   "<rootcheck>"
-   "  <rootkit_files>/var/ossec/etc/shared/rootkit_files.txt</rootkit_files>"
-   "  <rootkit_trojans>/var/ossec/etc/shared/rootkit_trojans.txt</rootkit_trojans>"
-   "</rootcheck>"
-   ""
-   "<localfile>"
-   "  <log_format>syslog</log_format>"
-   "  <location>/var/log/auth.log</location>"
-   "</localfile>"
-   ""
-   ""
-   "<localfile>"
-   "  <log_format>apache</log_format>"
-   "  <location>/var/log/apache2/access.log</location>"
-   "</localfile>"
-   ""
-   "<localfile>"
-   "  <log_format>apache</log_format>"
-   "  <location>/var/log/apache2/ssl-access.log</location>"
-   "</localfile>"
-   ""
-   "<localfile>"
-   "  <log_format>apache</log_format>"
-   "  <location>/var/log/apache2/other_vhosts_access.log</location>"
-   "</localfile>"
-   ""
-   "<localfile>"
-   "  <log_format>apache</log_format>"
-   "  <location>/var/log/apache2/error.log</location>"
-   "</localfile>"
-   "</ossec_config>"
-   ""])
-
-
-(defn configure-sshd
-  ""
-  []
-  (actions/remote-file
-    "/etc/ssh/sshd_config"
-    :owner "root"
-    :group "root"
-    :mode "644"
-    :force true
-    :local-file "./resources/org/domaindrivenarchitecture/pallet/crate/hardening/sshd_config"))
-
-
-
-(defn install-unattended-upgrades
-  ""
-  []
+(defn install-unattended-upgrades []
   (actions/package "unattended-upgrades"))
-
-
-(s/defn install-ossec
-  "Install the ossec client"
-  [config :- OssecConfig]
-  (actions/package-source "ossec"
-   :aptitude
-   {:url "http://ossec.alienvault.com/repos/apt/ubuntu"
-    :release "trusty"
-    :key-url "http://ossec.alienvault.com/repos/apt/conf/ossec-key.gpg.key"
-    :scopes ["main"]})
-  (actions/package-manager :update)
-  (actions/package "ossec-hids-agent"))
-
-
-(s/defn configure-ossec
-  "configure the ossec client. Restart client is a missing feature."
-  [config :- OssecConfig]
-  (actions/exec
-       {:language :bash}
-       (stevedore/script
-         ((str "echo \"y\n\"|" "/var/ossec/bin/manage_agents -i " ~(get-in config [:agent-key])))))
-
-  (actions/remote-file
-      "/var/ossec/etc/ossec.conf"
-      :owner "root"
-      :group "ossec"
-      :mode "440"
-      :force true
-      :content (string/join
-                 \newline
-                 (ossec-agent-configuration (get-in config [:server-ip])))))
-
-  ;  --------- neustart
-  ;  bin/ossec-control restart
-
 
 (s/defn install
   "installation of hardening crate"
   [config :- HardeningConfig]
   (install-unattended-upgrades)
   (when (contains? config :iptables)
-    (iptables/install "iptables" {}))
+    (iptables/install-iptables))
   (when (contains? config :ossec)
-    (install-ossec (get-in config [:ossec]))))
-
+    (ossec/install-ossec (get-in config [:ossec]))))
 
 (s/defn configure
   "configuration of hardening crate"
   [config :- HardeningConfig]
-  (configure-sshd)
+  (sshd/configure-sshd)
   (when (contains? config :iptables)
     (let [iptables-config (get-in config [:iptables])
           rules (if (get-in iptables-config [:default])
-                  {}
-                  {:rules (get-in iptables-config [:custom-rules])})]
-     (iptables/configure "iptables" rules)))
+                  (iptables-config/default-web-firewall)
+                  (get-in iptables-config [:custom-rules]))]
+     (iptables/configure-iptables :rules rules)))
   (when (contains? config :ossec)
-    (configure-ossec (get-in config [:ossec]))))
-
+    (ossec/configure-ossec (get-in config [:ossec]))))
 
 (defmethod dda-crate/dda-install
   facility [dda-crate partial-effective-config]
