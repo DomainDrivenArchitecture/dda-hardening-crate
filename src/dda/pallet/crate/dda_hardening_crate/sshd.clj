@@ -16,6 +16,7 @@
 
 (ns dda.pallet.crate.dda-hardening-crate.sshd
  (:require
+   [clojure.java.io :as io]
    [pallet.actions :as actions]))
 
 (defn configure-sshd
@@ -26,5 +27,5 @@
     :owner "root"
     :group "root"
     :mode "644"
-    :force true
-    :local-file "./resources/dda/pallet/crate/dda_hardening_crate/sshd_config"))
+    :content
+    (slurp (io/resource "dda/pallet/crate/dda_hardening_crate/sshd_config"))))
