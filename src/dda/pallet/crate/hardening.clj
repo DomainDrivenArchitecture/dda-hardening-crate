@@ -174,7 +174,6 @@
   [config :- HardeningConfig]
   (configure-sshd)
   (when (contains? config :iptables)
-    ; TODO review jem 2016.06.22: migrate iptables to dda-pallet & schema
     (let [iptables-config (get-in config [:iptables])
           rules (if (get-in iptables-config [:default])
                   {}
