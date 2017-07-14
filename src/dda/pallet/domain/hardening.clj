@@ -19,7 +19,7 @@
    [schema.core :as s]
    [dda.cm.group :as group]
    [dda.pallet.core.dda-crate :as dda-crate]
-   [dda.pallet.crate.config :as config-crate]
+   [dda.pallet.dda-config-crate.infra :as config-crate]
    [dda.pallet.crate.hardening :as hardening-crate]))
 
 (def HardeningDomainConfig

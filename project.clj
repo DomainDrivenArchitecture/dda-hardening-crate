@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [prismatic/schema "1.1.5"]
                  [com.palletops/pallet "0.8.12"]
-                 [dda/dda-pallet "0.4.0-SNAPSHOT"]]
+                 [dda/dda-pallet "0.5.0"]]
    :repositories [["snapshots" :clojars]
                   ["releases" :clojars]]
    :deploy-repositories [["snapshots" :clojars]
