@@ -14,13 +14,13 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-(ns dda.pallet.domain.hardening
+(ns dda.pallet.dda-hardening-crate.domain
  (:require
    [schema.core :as s]
    [dda.cm.group :as group]
    [dda.pallet.core.dda-crate :as dda-crate]
    [dda.pallet.dda-config-crate.infra :as config-crate]
-   [dda.pallet.crate.hardening :as hardening-crate]))
+   [dda.pallet.dda-hardening-crate.infra :as hardening-crate]))
 
 (def HardeningDomainConfig
  {})
@@ -45,7 +45,7 @@
  (dda-crate/create-server-spec hardening-crate/dda-hardening-crate))
 
 (defn dda-hardening-group [stack-config]
-  (group/create-group
+  (group/group-spec
     stack-config
     [(config-crate/with-config stack-config)
      with-hardening]))

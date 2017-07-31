@@ -14,18 +14,18 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-(ns dda.pallet.crate.dda-hardening-crate.instantiate-aws
+(ns dda.pallet.dda-hardening-crate.app.instantiate-aws
   (:require
     [clojure.inspector :as inspector]
     [schema.core :as s]
     [pallet.api :as api]
     [pallet.compute :as compute]
-    [org.domaindrivenarchitecture.pallet.commons.encrypted-credentials :as crypto]
-    [org.domaindrivenarchitecture.pallet.commons.session-tools :as session-tools]
-    [org.domaindrivenarchitecture.pallet.commons.pallet-schema :as ps]
+    [dda.pallet.commons.encrypted-credentials :as crypto]
+    [dda.pallet.commons.session-tools :as session-tools]
+    [dda.pallet.commons.pallet-schema :as ps]
     [dda.cm.operation :as operation]
     [dda.cm.aws :as cloud-target]
-    [dda.pallet.domain.hardening :as domain]))
+    [dda.pallet.dda-hardening-crate.domain :as domain]))
 
 (def domain-config {})
 

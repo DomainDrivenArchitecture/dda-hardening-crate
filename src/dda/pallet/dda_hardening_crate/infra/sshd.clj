@@ -14,7 +14,7 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-(ns dda.pallet.crate.dda-hardening-crate.sshd
+(ns dda.pallet.dda-hardening-crate.infra.sshd
  (:require
    [clojure.java.io :as io]
    [pallet.actions :as actions]))

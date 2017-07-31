@@ -14,14 +14,14 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-(ns dda.pallet.crate.dda-hardening-crate.instantiate-existing
+(ns dda.pallet.dda-hardening-crate.app.instantiate-existing
   (:require
     [clojure.inspector :as inspector]
-    [org.domaindrivenarchitecture.pallet.commons.session-tools :as session-tools]
-    [org.domaindrivenarchitecture.pallet.commons.pallet-schema :as ps]
+    [dda.pallet.commons.session-tools :as session-tools]
+    [dda.pallet.commons.pallet-schema :as ps]
     [dda.cm.operation :as operation]
     [dda.cm.existing :as existing]
-    [dda.pallet.domain.hardening :as domain]))
+    [dda.pallet.dda-hardening-crate.domain :as domain]))
 
 (def provisioning-ip
   "192.168.56.103")

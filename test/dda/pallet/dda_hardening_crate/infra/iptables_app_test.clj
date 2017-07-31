@@ -14,13 +14,13 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-(ns dda.pallet.crate.dda-hardening-crate.iptables-app-test
+(ns dda.pallet.dda-hardening-crate.infra.iptables-app-test
  (:require
    [clojure.test :refer :all]
    [clojure.string :as string]
    [pallet.build-actions :as build-actions]
    [pallet.actions :as actions]
-   [dda.pallet.crate.dda-hardening-crate.iptables-app :as sut]))
+   [dda.pallet.dda-hardening-crate.infra.iptables-app :as sut]))
 
 
 (def rules

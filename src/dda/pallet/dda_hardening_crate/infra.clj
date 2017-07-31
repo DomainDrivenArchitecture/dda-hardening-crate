@@ -14,16 +14,16 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-(ns dda.pallet.crate.hardening
+(ns dda.pallet.dda-hardening-crate.infra
  (:require
    [clojure.string :as string]
    [schema.core :as s]
    [pallet.actions :as actions]
    [pallet.crate :as crate]
-   [dda.pallet.crate.dda-hardening-crate.iptables-app :as iptables]
-   [dda.pallet.crate.dda-hardening-crate.iptables-config :as iptables-config]
-   [dda.pallet.crate.dda-hardening-crate.ossec :as ossec]
-   [dda.pallet.crate.dda-hardening-crate.sshd :as sshd]
+   [dda.pallet.dda-hardening-crate.infra.iptables-app :as iptables]
+   [dda.pallet.dda-hardening-crate.infra.iptables-config :as iptables-config]
+   [dda.pallet.dda-hardening-crate.infra.ossec :as ossec]
+   [dda.pallet.dda-hardening-crate.infra.sshd :as sshd]
    [dda.pallet.core.dda-crate :as dda-crate]))
 
 (def facility :dda-hardening)

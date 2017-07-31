@@ -14,13 +14,13 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-(ns dda.pallet.crate.dda-hardening-crate.iptables-rule-lib-test
+(ns dda.pallet.dda-hardening-crate.infra.iptables-rule-lib-test
  (:require
    [clojure.test :refer :all]
    [clojure.string :as string]
    [pallet.build-actions :as build-actions]
    [pallet.actions :as actions]
-   [dda.pallet.crate.dda-hardening-crate.iptables-rule-lib :as sut]))
+   [dda.pallet.dda-hardening-crate.infra.iptables-rule-lib :as sut]))
 
 
 (def ^:private allow-ajp

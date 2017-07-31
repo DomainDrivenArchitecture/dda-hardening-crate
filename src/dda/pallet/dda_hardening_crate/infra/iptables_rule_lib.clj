@@ -14,7 +14,7 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-(ns dda.pallet.crate.dda-hardening-crate.iptables-rule-lib
+(ns dda.pallet.dda-hardening-crate.infra.iptables-rule-lib
   (:require
     [pallet.actions :as actions]
     [pallet.crate :as crate]

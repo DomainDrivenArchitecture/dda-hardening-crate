@@ -14,9 +14,9 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-(ns dda.pallet.crate.dda-hardening-crate.iptables-config
+(ns dda.pallet.dda-hardening-crate.infra.iptables-config
   (:require
-    [dda.pallet.crate.dda-hardening-crate.iptables-rule-lib :as rule-lib]))
+    [dda.pallet.dda-hardening-crate.infra.iptables-rule-lib :as rule-lib]))
 
 (defn default-web-firewall
   []
