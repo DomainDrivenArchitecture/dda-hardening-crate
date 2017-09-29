@@ -1,4 +1,4 @@
-(defproject dda/dda-hardening-crate "0.3.0"
+(defproject dda/dda-hardening-crate "0.3.1-SNAPSHOT"
   :description "The dda hardening crate"
   :url "https://domaindrivenarchitecture.org"
   :license {:name "Apache License, Version 2.0"
