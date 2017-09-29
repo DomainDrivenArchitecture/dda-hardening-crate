@@ -1,4 +1,4 @@
-(defproject dda/dda-hardening-crate "0.3.0-SNAPSHOT"
+(defproject dda/dda-hardening-crate "0.3.0"
   :description "The dda hardening crate"
   :url "https://domaindrivenarchitecture.org"
   :license {:name "Apache License, Version 2.0"
@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [prismatic/schema "1.1.6"]
                  [com.palletops/pallet "0.8.12"]
-                 [dda/dda-pallet "0.5.2"]]
+                 [dda/dda-pallet "0.5.4"]]
    :repositories [["snapshots" :clojars]
                   ["releases" :clojars]]
    :deploy-repositories [["snapshots" :clojars]
