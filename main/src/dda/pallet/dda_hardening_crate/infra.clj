@@ -27,22 +27,20 @@
    [dda.pallet.core.dda-crate :as dda-crate]))
 
 (def facility :dda-hardening)
-(def version [0 2 0])
+(def version [0 4 0])
 
-(def HardeningConfig {(s/optional-key :ossec) ossec/OssecConfig
-                      (s/optional-key :iptables)
-                      {:default s/Bool (s/optional-key :custom-rules) [s/Str]}})
-
-
-(def default-config
-  {:iptables {:default true}})
+(def HardeningConfig
+ {:hardening {:version (s/enum :IPV4 :IPV6)        ; IPV6 or IPV4
+              :ports [s/Str]                      ;  All the Ports that you want
+              (s/optional-key :ping) []}})          ; Ping allowed or not
 
 (def dda-hardening-crate
   (dda-crate/make-dda-crate
     :facility facility
-    :version version
-    :config-schema HardeningConfig
-    :config-default default-config))
+    :version version))
+
+(def with-hardening
+ (dda-crate/create-server-spec dda-hardening-crate))
 
 (defn install-unattended-upgrades []
   (actions/package "unattended-upgrades"))
@@ -69,12 +67,10 @@
   (when (contains? config :ossec)
     (ossec/configure-ossec (get-in config [:ossec]))))
 
-(defmethod dda-crate/dda-install
-  facility [dda-crate partial-effective-config]
-  (let [config (dda-crate/merge-config dda-crate partial-effective-config)]
-    (install config)))
+(defmethod dda-crate/dda-install facility
+  [dda-crate config]
+  (install config))
 
-(defmethod dda-crate/dda-configure
-  facility [dda-crate partial-effective-config]
-  (let [config (dda-crate/merge-config dda-crate partial-effective-config)]
-    (configure config)))
+(defmethod dda-crate/dda-configure facility
+  [dda-crate config]
+  (configure config))
