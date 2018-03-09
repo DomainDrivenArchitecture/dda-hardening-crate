@@ -14,18 +14,19 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-(ns dda.pallet.dda-hardening-crate.infra.sshd
- (:require
-   [clojure.java.io :as io]
-   [pallet.actions :as actions]))
+(ns dda.pallet.dda-hardening-create.domain-test
+  (:require
+    [clojure.test :refer :all]
+    [schema.core :as s]
+    [dda.pallet.dda-hardening-crate.domain :as sut]))
 
-(defn configure-sshd
-  ""
-  []
-  (actions/remote-file
-    "/etc/ssh/sshd_config"
-    :owner "root"
-    :group "root"
-    :mode "644"
-    :content
-    (slurp (io/resource "sshd_config"))))
+(def config-1
+  {:hardening {:version :IPV4
+               :ports ["80", "400"]
+               :ping true
+               :iptables true}})
+
+(deftest test-infra-configure
+  (testing
+    "test the infra-config creaton"
+    (is (thrown? Exception (sut/infra-configuration {})))))

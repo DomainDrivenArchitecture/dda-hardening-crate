@@ -29,6 +29,7 @@
 (def with-hardening infra/with-hardening)
 (def InfraResult domain/InfraResult)
 (def HardeningDomainConfig domain/HardeningDomainConfig)
+(def HardeningResolvedConfig domain/HardeningResolvedConfig)
 
 (def ProvisioningUser existing/ProvisioningUser)
 (def Targets existing/Targets)
@@ -45,13 +46,24 @@
   [file-name :- s/Str]
   (ext-config/parse-config file-name))
 
+(s/defn dda-hardening-group-spec
+  [app-config :- HardeningAppConfig]
+  (group/group-spec
+    app-config [(config-crate/with-config app-config)
+                with-hardening]))
 
 (s/defn ^:always-validate
-  existing-provisioning-spec
-  "Creates an integrated group spec from a domain config and a provisioning user."
-  [domain-config :- HardeningDomainConfig
-   targets-config :- existing/Targets]
-  (existing-provisioning-spec-resolved domain-config (existing/resolve-targets targets-config)))
+  app-configuration-resolved :- HardeningAppConfig
+  [resolved-domain-config :- HardeningResolvedConfig & options]
+  (let [{:keys [group-key] :or {group-key infra/facility}} options
+        {:keys [type]} resolved-domain-config]
+     {:group-specific-config {group-key (domain/infra-configuration resolved-domain-config)}}))
+
+(s/defn ^:always-validate
+  app-configuration :- HardeningAppConfig
+  [domain-config :- HardeningDomainConfig & options]
+  (let [resolved-domain-config (secret/resolve-secrets domain-config HardeningDomainConfig)]
+    (apply app-configuration-resolved resolved-domain-config options)))
 
 (s/defn ^:always-validate
   existing-provisioning-spec-resolved
@@ -63,30 +75,18 @@
      (dda-hardening-group-spec (app-configuration domain-config))
      (existing/node-spec provisioning-user))))
 
-(defn dda-hardening-group-spec
-  [app-config :- HardeningAppConfig]
-  (group/group-spec
-    app-config [(config-crate/with-config stack-config)
-                with-hardening]))
-
 (s/defn ^:always-validate
-  app-configuration :- HardeningAppConfig
-  [domain-config :- HardeningDomainConfig & options]
-  (let [resolved-domain-config (secret/resolve-secrets domain-config HardeningDomainConfig)]
-    (apply app-configuration-resolved resolved-domain-config options)))
-
-(s/defn ^:always-validate
-  app-configuration-resolved :- HardeningAppConfig
-  [resolved-domain-config :- HardeningResolvedConfig & options]
-  (let [{:keys [group-key] :or {group-key infra/facility}} options
-        {:keys [type]} resolved-domain-config]
-     {:group-specific-config {group-key} {domain/infra-configuration resolved-domain-config}}))
-
-(s/defn ^:always-validate existing-provider
-  [targets-config :- existing/Targets]
-  (existing-provider-resolved (existing/resolve-targets targets-config)))
+  existing-provisioning-spec
+  "Creates an integrated group spec from a domain config and a provisioning user."
+  [domain-config :- HardeningDomainConfig
+   targets-config :- existing/Targets]
+  (existing-provisioning-spec-resolved domain-config (existing/resolve-targets targets-config)))
 
 (s/defn ^:always-validate existing-provider-resolved
   [targets-config :- existing/TargetsResolved]
   (let [{:keys [existing provisioning-user]} targets-config]
-    (existing/provider {:dda-hardening-crate existing})))
+    (existing/provider {:dda-hardening existing})))
+
+(s/defn ^:always-validate existing-provider
+  [targets-config :- existing/Targets]
+  (existing-provider-resolved (existing/resolve-targets targets-config)))

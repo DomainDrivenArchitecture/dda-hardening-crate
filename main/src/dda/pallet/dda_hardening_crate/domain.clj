@@ -26,11 +26,11 @@
 (def HardeningDomainConfig
   infra/HardeningConfig)
 
-(def HardeningConfigResolved
+(def HardeningResolvedConfig
   (secret/create-resolved-schema HardeningDomainConfig))
 
 (s/defn ^:always-validate
   infra-configuration :- InfraResult
-  [domain-config :- HardeningConfigResolved]
+  [domain-config :- HardeningResolvedConfig]
   (let [{:keys [versiom ports ping]} domain-config]
     {infra/facility domain-config}))

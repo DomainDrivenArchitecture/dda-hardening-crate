@@ -17,6 +17,7 @@
 (ns dda.pallet.dda-hardening-crate.infra
  (:require
    [clojure.string :as string]
+   [clojure.tools.logging :as logging]
    [schema.core :as s]
    [pallet.actions :as actions]
    [pallet.crate :as crate]
@@ -31,8 +32,10 @@
 
 (def HardeningConfig
  {:hardening {:version (s/enum :IPV4 :IPV6)        ; IPV6 or IPV4
-              :ports [s/Str]                      ;  All the Ports that you want
-              (s/optional-key :ping) []}})          ; Ping allowed or not
+              :ports [s/Str]                       ; All the Ports that you want
+              (s/optional-key :ping) s/Bool        ; Ping allowed or not
+              (s/optional-key :ossec) s/Bool
+              (s/optional-key :iptables) s/Bool}})
 
 (def dda-hardening-crate
   (dda-crate/make-dda-crate
@@ -40,7 +43,7 @@
     :version version))
 
 (def with-hardening
- (dda-crate/create-server-spec dda-hardening-crate))
+  (dda-crate/create-server-spec dda-hardening-crate))
 
 (defn install-unattended-upgrades []
   (actions/package "unattended-upgrades"))
@@ -48,6 +51,8 @@
 (s/defn install
   "installation of hardening crate"
   [config :- HardeningConfig]
+  (actions/as-action
+      (logging/info (str "12345")))
   (install-unattended-upgrades)
   (when (contains? config :iptables)
     (iptables/install-iptables))
@@ -67,10 +72,10 @@
   (when (contains? config :ossec)
     (ossec/configure-ossec (get-in config [:ossec]))))
 
-(defmethod dda-crate/dda-install facility
+(s/defmethod dda-crate/dda-install facility
   [dda-crate config]
   (install config))
 
-(defmethod dda-crate/dda-configure facility
+(s/defmethod dda-crate/dda-configure facility
   [dda-crate config]
   (configure config))

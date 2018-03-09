@@ -1,4 +1,4 @@
-(def HardeningDomainConfig
- {:hardening {:version "IPV4"      ; IPV6 or IPV4
-              :ports ["80", "400"]      ; All the Ports that you want
-              :ping true}})
+{:hardening {:version :IPV4      ; IPV6 or IPV4
+             :ports ["80", "400"]      ; All the Ports that you want
+             :ping true
+             :iptables true}}
