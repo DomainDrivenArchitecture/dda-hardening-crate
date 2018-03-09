@@ -23,6 +23,19 @@
 
 (def InfraResult {infra/facility infra/HardeningConfig})
 
+(def HardeningDomain
+  (s/either
+    {:webserver {:additional-incomming-ports [s/Str]}}
+    {:appserver {:additional-incomming-ports [s/Str]
+                 :allow-ajp-from-ip [s/Str]}}
+    {:ssh-only-server {:incomming-ports [s/Str]}}))
+
+(def web-server-default
+ {:settings #{:unattende-upgrades :sshd-key-only}
+  :iptables {:settings #{:ip-v6 :antilockout-ssh :v4-drop-ping
+                          :allow-dns-as-client :allow-established :log-and-drop-remaining}}
+  :incomming-ports ["80" "443"]})
+
 (def HardeningDomainConfig
   infra/HardeningConfig)
 

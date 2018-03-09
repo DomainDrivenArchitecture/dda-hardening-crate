@@ -84,7 +84,7 @@
   (let [chain-name (expand-chain chain)]
     [(str "-A " chain-name " -p icmp -j DROP")]))
 
-
+; TODO fix this
 (defn v6-drop-ping-rule
   ""
   [chain]

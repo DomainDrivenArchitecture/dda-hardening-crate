@@ -30,12 +30,16 @@
 (def facility :dda-hardening)
 (def version [0 4 0])
 
-(def HardeningConfig
- {:hardening {:version (s/enum :IPV4 :IPV6)        ; IPV6 or IPV4
-              :ports [s/Str]                       ; All the Ports that you want
-              (s/optional-key :ping) s/Bool        ; Ping allowed or not
-              (s/optional-key :ossec) s/Bool
-              (s/optional-key :iptables) s/Bool}})
+(def HardeningInfra
+ {:settings (hash-set (s/enum :unattende-upgrades
+                              :sshd-key-only))
+  (s/optional-key :iptables) {:settings (hash-set (s/enum :ip-v6 :antilockout-ssh :v4-drop-ping
+                                                          :v6-drop-ping
+                                                          :allow-ftp-as-client :allow-dns-as-client
+                                                          :allow-established :log-and-drop-remaining))
+                              (s/optional-key :allow-ajp-from-ip) [s/Str] ;incoming ip address
+                              (s/optional-key :incomming-ports) [s/Str]
+                              (s/optional-key :outgoing-ports) [s/Str]}}) ; allow-destination-port
 
 (def dda-hardening-crate
   (dda-crate/make-dda-crate
@@ -55,9 +59,7 @@
       (logging/info (str "12345")))
   (install-unattended-upgrades)
   (when (contains? config :iptables)
-    (iptables/install-iptables))
-  (when (contains? config :ossec)
-    (ossec/install-ossec (get-in config [:ossec]))))
+    (iptables/install-iptables)))
 
 (s/defn configure
   "configuration of hardening crate"
@@ -68,9 +70,7 @@
           rules (if (get-in iptables-config [:default])
                   (iptables-config/default-web-firewall)
                   (get-in iptables-config [:custom-rules]))]
-     (iptables/configure-iptables :rules rules)))
-  (when (contains? config :ossec)
-    (ossec/configure-ossec (get-in config [:ossec]))))
+     (iptables/configure-iptables :rules rules))))
 
 (s/defmethod dda-crate/dda-install facility
   [dda-crate config]
