@@ -14,15 +14,25 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-(ns dda.pallet.dda-hardening-crate.infra.iptables-app
+(ns dda.pallet.dda-hardening-crate.infra.iptables
   (:require
     [clojure.string :as string]
+    [schema.core :as s]
+    [selmer.parser :as selmer]
     [pallet.actions :as actions]
     [pallet.crate :as crate]
     [pallet.stevedore :as stevedore]
     [dda.pallet.dda-hardening-crate.infra.iptables-rule-lib :as rule-lib]
     [dda.pallet.dda-hardening-crate.infra.iptables-config :as config]))
 
+
+(def IpTables {:settings (hash-set (s/enum :ip-v6 :ip4 :antilockout-ssh :allow-local
+                                           :v4-drop-ping :v6-drop-ping
+                                           :allow-ftp-as-client :allow-dns-as-client
+                                           :allow-established :log-and-drop-remaining))
+               (s/optional-key :allow-ajp-from-ip) [s/Str] ;incoming ip address
+               (s/optional-key :incomming-ports) [s/Str]
+               (s/optional-key :outgoing-ports) [s/Str]}) ; allow-destination-port)
 
 (defn- write-iptables-file
   ""
@@ -35,23 +45,11 @@
       \newline
       rules)))
 
-
-(defn create-chain-config
-  ""
-  [chain chain-rules]
-  (concat
-    (rule-lib/prefix chain)
-    chain-rules
-    rule-lib/suffix))
-
-
-(defn create-ip-config
-  ""
-  [rule-map-by-chain]
-  (into
-    []
-    (flatten
-      (for [[k v] rule-map-by-chain] (create-chain-config k v)))))
+(s/defn
+  create-ip-version
+  [ip-version :- s/Keyword
+   infra-config :- IpTables]
+  (selmer/render-file "ip_tables_filter.templ" infra-config))
 
 
 (defn configure-iptables

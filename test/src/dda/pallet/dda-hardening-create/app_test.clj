@@ -20,13 +20,9 @@
     [schema.core :as s]
     [dda.pallet.dda-hardening-crate.app :as sut]))
 
-(def config-1
-  {:hardening {:version :IPV4
-               :ports ["80", "400"]
-               :ping true
-               :iptables true}})
-
-(deftest test-app-configuration-resolved
+(deftest the-whole
   (testing
-    "test the infra-config creaton"
-    (is (thrown? Exception (sut/app-configuration-resolved {})))))
+    "test plan creation"
+      (is sut/with-hardening)))
+    
+

@@ -1,0 +1,20 @@
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]{% if settings.antilockout-ssh %}
+
+# ensure that incoming ssh works
+-A INPUT -p tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT{% endif %}{% if settings.v4-drop-ping %}
+
+# drop v4 ping
+-A INPUT  -p icmp -j DROP{% endif %}{% if settings.v6-drop-ping %}
+
+# drop v6 ping TODO: fix this
+-A INPUT  -p icmpv6 -j DROP{% endif %}{% if settings.allow-local %}
+
+# allow local traffic
+-A INPUT -i lo -j ACCEPT
+-A OUTPUT -o lo -j ACCEPT{% endif %}
+
+COMMIT

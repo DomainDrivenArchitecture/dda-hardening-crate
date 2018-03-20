@@ -11,3 +11,4 @@ pom.xml.asc
 .nrepl-port
 /logs/
 /bin/
+/.vscode

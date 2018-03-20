@@ -21,9 +21,8 @@
    [schema.core :as s]
    [pallet.actions :as actions]
    [pallet.crate :as crate]
-   [dda.pallet.dda-hardening-crate.infra.iptables-app :as iptables]
+   [dda.pallet.dda-hardening-crate.infra.iptables :as iptables]
    [dda.pallet.dda-hardening-crate.infra.iptables-config :as iptables-config]
-   [dda.pallet.dda-hardening-crate.infra.ossec :as ossec]
    [dda.pallet.dda-hardening-crate.infra.sshd :as sshd]
    [dda.pallet.core.dda-crate :as dda-crate]))
 
@@ -33,13 +32,7 @@
 (def HardeningInfra
  {:settings (hash-set (s/enum :unattende-upgrades
                               :sshd-key-only))
-  (s/optional-key :iptables) {:settings (hash-set (s/enum :ip-v6 :antilockout-ssh :v4-drop-ping
-                                                          :v6-drop-ping
-                                                          :allow-ftp-as-client :allow-dns-as-client
-                                                          :allow-established :log-and-drop-remaining))
-                              (s/optional-key :allow-ajp-from-ip) [s/Str] ;incoming ip address
-                              (s/optional-key :incomming-ports) [s/Str]
-                              (s/optional-key :outgoing-ports) [s/Str]}}) ; allow-destination-port
+  (s/optional-key :iptables) iptables/IpTables})
 
 (def dda-hardening-crate
   (dda-crate/make-dda-crate

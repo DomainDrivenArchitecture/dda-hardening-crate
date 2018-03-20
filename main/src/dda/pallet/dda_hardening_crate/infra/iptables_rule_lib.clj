@@ -38,34 +38,6 @@
    :mangle "mangle"
    :nat "nat"))
 
-
-(defn prefix
-  ""
-  [table]
-  (case table
-    :filter
-    ["*filter"
-     ":INPUT ACCEPT [0:0]"
-     ":FORWARD ACCEPT [0:0]"
-     ":OUTPUT ACCEPT [0:0]"]
-    :mangle
-    ["*mangle"
-     ":PREROUTING ACCEPT [0:0]"
-     ":INPUT ACCEPT [0:0]"
-     ":FORWARD ACCEPT [0:0]"
-     ":OUTPUT ACCEPT [0:0]"
-     ":POSTROUTING ACCEPT [0:0]"]
-    :nat
-    ["*nat"
-     ":PREROUTING ACCEPT [0:0]"
-      ":OUTPUT ACCEPT [0:0]"
-     ":POSTROUTING ACCEPT [0:0]"]))
-
-
-(def suffix
-  ["COMMIT"])
-
-
 (def allow-lo-rule
   ["# allow local traffic"
    "-A INPUT -i lo -j ACCEPT"

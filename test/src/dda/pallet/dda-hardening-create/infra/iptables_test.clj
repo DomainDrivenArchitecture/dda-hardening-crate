@@ -14,14 +14,39 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-
-(ns dda.pallet.dda-hardening-crate.domain-test
+(ns dda.pallet.dda-hardening-crate.infra.iptables-test
   (:require
-    [clojure.test :refer :all]
-    [dda.pallet.dda-hardening-crate.domain :as sut]))
+   [clojure.test :refer :all]
+   [dda.pallet.dda-hardening-crate.infra.iptables :as sut]))
+
+(def pair1 {:input {}
+            :expected "*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+
+COMMIT
+"})
+
+(def pair2 {:input {:settings #{:allow-local}}
+            :expected "*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+
+# allow local traffic
+-A INPUT -i lo -j ACCEPT
+-A OUTPUT -o lo -j ACCEPT
+
+COMMIT
+"})
 
 
-(deftest the-whole
-  (testing
-    "test plan creation"
-      (is sut/with-hardening)))
+(deftest chain-creation-test
+  []
+  (testing "filter"
+    (is (= (:expected pair1)
+           (sut/create-ip-version nil (:input pair1)))))
+  (testing "filter"
+    (is (= (:expected pair2)
+           (sut/create-ip-version nil (:input pair2))))))
