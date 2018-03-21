@@ -28,7 +28,8 @@
 COMMIT
 "})
 
-(def pair2 {:input {:settings #{:ipv4 :drop-ping}}
+(def pair2 {:input {:ip-version #{:ipv4}
+                    :static-rules #{:ipv4 :drop-ping}}
             :expected "*filter
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
@@ -40,10 +41,14 @@ COMMIT
 COMMIT
 "})
 
-(def pair3 {:input {:settings #{:ip4 :antilockout-ssh :allow-local
-                                :drop-ping :allow-ftp-as-client :allow-dns-as-client
-                                :allow-established-input :log-and-drop-remaining-input
-                                :log-and-drop-remaining-output}}
+(def pair3 {:input {:ip-version #{:ipv4}
+                    :static-rules #{:antilockout-ssh :allow-local
+                                    :drop-ping :allow-ftp-as-client :allow-dns-as-client
+                                    :allow-established-input :log-and-drop-remaining-input
+                                    :log-and-drop-remaining-output}
+                    :allow-ajp-from-ip ["0.0.0.1" "0.0.0.2"]
+                    :incomming-ports ["80" "443"]
+                    :outgoing-ports ["443"]}
             :expected "*filter
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
@@ -52,6 +57,9 @@ COMMIT
 # ensure that incoming ssh works
 -A INPUT -p tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
 -A OUTPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
+
+# drop v4 ping
+-A INPUT  -p icmp -j DROP
 
 # allow local traffic
 -A INPUT -i lo -j ACCEPT

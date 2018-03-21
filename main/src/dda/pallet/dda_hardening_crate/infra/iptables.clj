@@ -25,10 +25,11 @@
     [dda.pallet.dda-hardening-crate.infra.iptables-rule-lib :as rule-lib]))
 
 
-(def IpTables {:settings (hash-set (s/enum :ip-v6 :ip4 :antilockout-ssh :allow-local
-                                           :drop-ping :allow-ftp-as-client :allow-dns-as-client
-                                           :allow-established-input :log-and-drop-remaining-input
-                                           :log-and-drop-remaining-output))
+(def IpTables {:ip-version (hash-set (s/enum :ipv6 :ip4))
+               :static-rules (hash-set (s/enum :antilockout-ssh :allow-local :drop-ping
+                                               :allow-ftp-as-client :allow-dns-as-client
+                                               :allow-established-input :log-and-drop-remaining-input
+                                               :log-and-drop-remaining-output))
                (s/optional-key :allow-ajp-from-ip) [s/Str] ;incoming ip address
                (s/optional-key :incomming-ports) [s/Str]
                (s/optional-key :outgoing-ports) [s/Str]}) ; allow-destination-port)
@@ -46,7 +47,7 @@
       rules)))
 
 (s/defn
-  create-ip-version
+  create-iptables-filter
   [ip-version :- s/Keyword
    infra-config :- IpTables]
   (selmer/render-file "ip_tables_filter.templ" infra-config))
@@ -55,7 +56,7 @@
 (s/defn
   configure-iptables
   [infra-config :- IpTables]
-  (let [v4-content (create-ip-version :ipv4 infra-config)
+  (let [v4-content (create-iptables-filter :ipv4 infra-config)
         v6-content ""]
     (write-iptables-file
       "/etc/iptables/rules.v4"

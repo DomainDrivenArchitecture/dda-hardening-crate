@@ -48,13 +48,3 @@
   [chain protocol dport]
   (let [chain-name (expand-chain chain)]
     [(str "-A " chain-name " -p " protocol " --dport " dport " -j ACCEPT")]))
-
-
-
-(defn log-and-drop-rule
-  ""
-  [chain]
-  (let [chain-name (expand-chain chain)]
-    [(str "# log and drop all the traffic for " chain-name)
-     (str "-A " chain-name " -j LOG --log-level 4 --log-prefix \"" chain-name " DROP: \"")
-     (str "-A " chain-name " -j DROP")]))
