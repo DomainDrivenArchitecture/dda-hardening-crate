@@ -5,10 +5,10 @@
 
 # ensure that incoming ssh works
 -A INPUT -p tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
--A OUTPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT{% endif %}{% if settings.v4-drop-ping %}
+-A OUTPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT{% endif %}{% if all settings.drop-ping settings.ipv4 %}
 
 # drop v4 ping
--A INPUT  -p icmp -j DROP{% endif %}{% if settings.v6-drop-ping %}
+-A INPUT  -p icmp -j DROP{% endif %}{% if all settings.drop-ping settings.ipv6 %}
 
 # drop v6 ping TODO: fix this
 -A INPUT  -p icmpv6 -j DROP{% endif %}{% if settings.allow-local %}

@@ -38,32 +38,6 @@
    :mangle "mangle"
    :nat "nat"))
 
-(def allow-lo-rule
-  ["# allow local traffic"
-   "-A INPUT -i lo -j ACCEPT"
-   "-A OUTPUT -o lo -j ACCEPT"])
-
-
-(def antilockout-rule
-  ["# ensure that incoming ssh works"
-   "-A INPUT -p tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT"
-   "-A OUTPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT"])
-
-
-(defn v4-drop-ping-rule
-  ""
-  [chain]
-  (let [chain-name (expand-chain chain)]
-    [(str "-A " chain-name " -p icmp -j DROP")]))
-
-; TODO fix this
-(defn v6-drop-ping-rule
-  ""
-  [chain]
-  (let [chain-name (expand-chain chain)]
-    [(str "-A " chain-name " -p icmpv6 -j DROP")]))
-
-
 (defn allow-ajp-from-ip
   [ip]
   ["# allow incoming traffic from ip"

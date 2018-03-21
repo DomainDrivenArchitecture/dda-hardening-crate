@@ -28,11 +28,32 @@
 COMMIT
 "})
 
-(def pair2 {:input {:settings #{:allow-local}}
+(def pair2 {:input {:settings #{:ipv4 :drop-ping}}
             :expected "*filter
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
+
+# drop v4 ping
+-A INPUT  -p icmp -j DROP
+
+COMMIT
+"})
+
+(def pair3 {:input {:settings #{:ipv4 :antilockout-ssh :allow-local :drop-ping
+                                :allow-ftp-as-client :allow-dns-as-client
+                                :allow-established :log-and-drop-remaining}}
+            :expected "*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+
+# ensure that incoming ssh works
+-A INPUT -p tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
+
+# drop v4 ping
+-A INPUT  -p icmp -j DROP
 
 # allow local traffic
 -A INPUT -i lo -j ACCEPT
@@ -49,4 +70,7 @@ COMMIT
            (sut/create-ip-version nil (:input pair1)))))
   (testing "filter"
     (is (= (:expected pair2)
-           (sut/create-ip-version nil (:input pair2))))))
+           (sut/create-ip-version nil (:input pair2)))))
+  (testing "filter"
+    (is (= (:expected pair3)
+           (sut/create-ip-version nil (:input pair3))))))
