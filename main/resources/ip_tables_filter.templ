@@ -15,6 +15,31 @@
 
 # allow local traffic
 -A INPUT -i lo -j ACCEPT
--A OUTPUT -o lo -j ACCEPT{% endif %}
+-A OUTPUT -o lo -j ACCEPT{% endif %}{% if settings.allow-established-input %}
+
+# allow stablished connection for INPUT
+-A INPUT -m state --state ESTABLISHED -j ACCEPT{% endif %}{% if settings.allow-dns-as-client %}
+
+# allow outgoing dns requests
+-A OUTPUT -p udp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A INPUT -p udp --sport 53 -m state --state ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A INPUT -p tcp --sport 53 -m state --state ESTABLISHED -j ACCEPT{% endif %}{% if settings.allow-ftp-as-client %}
+
+# allow outgoing ftp requests
+-A INPUT -p tcp --sport 21 -m state --state ESTABLISHED -j ACCEPT
+-A INPUT -p tcp --sport 20 -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -p tcp --sport 1024: --dport 1024: -m state --state ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 21 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 20 -m state --state ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --sport 1024: --dport 1024: -m state --state ESTABLISHED,RELATED,NEW -j ACCEPT{% endif %}{% if settings.log-and-drop-remaining-input %}
+
+# log and drop all the traffic for INPUT
+-A INPUT -j LOG --log-level 4 --log-prefix "INPUT DROP: "
+-A INPUT -j DROP{% endif %}{% if settings.log-and-drop-remaining-output %}
+
+# log and drop all the traffic for OUTPUT
+-A OUTPUT -j LOG --log-level 4 --log-prefix "OUTPUT DROP: "
+-A OUTPUT -j DROP{% endif %}
 
 COMMIT

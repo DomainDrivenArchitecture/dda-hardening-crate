@@ -43,32 +43,6 @@
   ["# allow incoming traffic from ip"
    (str "-A INPUT -p tcp -s " ip " --dport 8009 -j ACCEPT")])
 
-(def allow-ftp-as-client-rule
-  ["# allow outgoing ftp requests"
-   "-A INPUT -p tcp --sport 21 -m state --state ESTABLISHED -j ACCEPT"
-   "-A INPUT -p tcp --sport 20 -m state --state ESTABLISHED,RELATED -j ACCEPT"
-   "-A INPUT -p tcp --sport 1024: --dport 1024: -m state --state ESTABLISHED -j ACCEPT"
-   "-A OUTPUT -p tcp --dport 21 -m state --state NEW,ESTABLISHED -j ACCEPT"
-   "-A OUTPUT -p tcp --dport 20 -m state --state ESTABLISHED -j ACCEPT"
-   "-A OUTPUT -p tcp --sport 1024: --dport 1024: -m state --state ESTABLISHED,RELATED,NEW -j ACCEPT"])
-
-
-(def allow-dns-as-client-rule
-  ["# allow outgoing dns requests"
-   "-A OUTPUT -p udp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT"
-   "-A INPUT -p udp --sport 53 -m state --state ESTABLISHED -j ACCEPT"
-   "-A OUTPUT -p tcp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT"
-   "-A INPUT -p tcp --sport 53 -m state --state ESTABLISHED -j ACCEPT"])
-
-
-(defn allow-established-rule
-  ""
-  [chain]
-  (let [chain-name (expand-chain chain)]
-    [(str "# allow stablished connection for " chain-name)
-     (str "-A " chain-name " -m state --state ESTABLISHED -j ACCEPT")]))
-
-
 (defn allow-destination-port-rule
   ""
   [chain protocol dport]

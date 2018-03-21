@@ -40,9 +40,10 @@ COMMIT
 COMMIT
 "})
 
-(def pair3 {:input {:settings #{:ipv4 :antilockout-ssh :allow-local :drop-ping
-                                :allow-ftp-as-client :allow-dns-as-client
-                                :allow-established :log-and-drop-remaining}}
+(def pair3 {:input {:settings #{:ip4 :antilockout-ssh :allow-local
+                                :drop-ping :allow-ftp-as-client :allow-dns-as-client
+                                :allow-established-input :log-and-drop-remaining-input
+                                :log-and-drop-remaining-output}}
             :expected "*filter
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
@@ -52,12 +53,34 @@ COMMIT
 -A INPUT -p tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
 -A OUTPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
 
-# drop v4 ping
--A INPUT  -p icmp -j DROP
-
 # allow local traffic
 -A INPUT -i lo -j ACCEPT
 -A OUTPUT -o lo -j ACCEPT
+
+# allow stablished connection for INPUT
+-A INPUT -m state --state ESTABLISHED -j ACCEPT
+
+# allow outgoing dns requests
+-A OUTPUT -p udp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A INPUT -p udp --sport 53 -m state --state ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A INPUT -p tcp --sport 53 -m state --state ESTABLISHED -j ACCEPT
+
+# allow outgoing ftp requests
+-A INPUT -p tcp --sport 21 -m state --state ESTABLISHED -j ACCEPT
+-A INPUT -p tcp --sport 20 -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -p tcp --sport 1024: --dport 1024: -m state --state ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 21 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 20 -m state --state ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --sport 1024: --dport 1024: -m state --state ESTABLISHED,RELATED,NEW -j ACCEPT
+
+# log and drop all the traffic for INPUT
+-A INPUT -j LOG --log-level 4 --log-prefix \"INPUT DROP: \"
+-A INPUT -j DROP
+
+# log and drop all the traffic for OUTPUT
+-A OUTPUT -j LOG --log-level 4 --log-prefix \"OUTPUT DROP: \"
+-A OUTPUT -j DROP
 
 COMMIT
 "})

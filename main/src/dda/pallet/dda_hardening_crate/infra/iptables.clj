@@ -27,7 +27,8 @@
 
 (def IpTables {:settings (hash-set (s/enum :ip-v6 :ip4 :antilockout-ssh :allow-local
                                            :drop-ping :allow-ftp-as-client :allow-dns-as-client
-                                           :allow-established :log-and-drop-remaining))
+                                           :allow-established-input :log-and-drop-remaining-input
+                                           :log-and-drop-remaining-output))
                (s/optional-key :allow-ajp-from-ip) [s/Str] ;incoming ip address
                (s/optional-key :incomming-ports) [s/Str]
                (s/optional-key :outgoing-ports) [s/Str]}) ; allow-destination-port)
