@@ -4,8 +4,7 @@
   :license {:name "Apache License, Version 2.0"
             :url "https://www.apache.org/licenses/LICENSE-2.0.html"}
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [dda/dda-pallet "1.2.0"]
-                 [selmer "1.11.7"]]
+                 [dda/dda-pallet "2.1.0-SNAPSHOT"]]
   :source-paths ["main/src"]
   :resource-paths ["main/resources"]
   :repositories [["snapshots" :clojars
@@ -21,8 +20,8 @@
                    [[org.domaindrivenarchitecture/pallet-aws "0.2.8.2"]
                     [org.clojure/test.check "0.10.0-alpha2"]
                     [com.palletops/pallet "0.8.12" :classifier "tests"]
-                    [ch.qos.logback/logback-classic "1.2.3"]
-                    [org.slf4j/jcl-over-slf4j "1.7.25"]]
+                    [ch.qos.logback/logback-classic "1.3.0-alpha4"]
+                    [org.slf4j/jcl-over-slf4j "1.8.0-beta1"]]
                    :plugins
                    [[lein-sub "0.3.0"]]
                    :leiningen/reply
@@ -37,6 +36,6 @@
                         :aot :all
                         :main dda.pallet.dda-hardening-create.main
                         :dependencies [[org.clojure/tools.cli "0.3.5"]
-                                       [ch.qos.logback/logback-classic "1.2.3"]
-                                       [org.slf4j/jcl-over-slf4j "1.8.0-beta0"]]}}
+                                       [ch.qos.logback/logback-classic "1.3.0-alpha4"]
+                                       [org.slf4j/jcl-over-slf4j "1.8.0-beta1"]]}}
    :local-repo-classpath true)
