@@ -37,14 +37,16 @@
   allow-ajp-from-single-ip :- s/Str
   [allow-established-output :- s/Bool
    ip :- s/Str]
-  [(str "-A INPUT -p tcp -s " ip " --dport 8009 -j ACCEPT")
-   (when (not allow-established-output)
-     (str "-A OUTPUT -p tcp -d " ip " --sport 8009 --state ESTABLISHED -j ACCEPT"))])
+  (into
+    [(str "-A INPUT -p tcp -s " ip " --dport 8009 -j ACCEPT")]
+    (when (not allow-established-output)
+      [(str "-A OUTPUT -p tcp -d " ip " --sport 8009 --state ESTABLISHED -j ACCEPT")])))
 
 (s/defn
   allow-ajp-from-ip :- s/Str
   [config :- IpTables]
-  (let [{:keys [allow-established-output allow-ajp-from-ip]} config]
+  (let [{:keys [static-rules allow-ajp-from-ip]} config
+        {:keys [allow-established-output]} static-rules]
     (string/join
       \newline
       (flatten
@@ -56,5 +58,5 @@
 (defn allow-destination-port-rule
   ""
   [chain protocol dport]
-  (let [chain-name (expand-chain chain)]
+  (let [chain-name "x"]
     [(str "-A " chain-name " -p " protocol " --dport " dport " -j ACCEPT")]))

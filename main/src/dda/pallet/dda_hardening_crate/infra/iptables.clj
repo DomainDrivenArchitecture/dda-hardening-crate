@@ -32,10 +32,13 @@
   create-iptables-filter
   [ip-version :- IpVersion
    infra-config :- IpTables]
-  (let [enriched-config (merge
+  (let [{:keys [allow-ajp-from-ip]} infra-config
+        enriched-config (merge
                           infra-config
-                          {:ip-version ip-version})])
-  (selmer/render-file "ip_tables_filter.templ" infra-config))
+                          {:ip-version {ip-version true}}
+                          {:dynamic-rules
+                           {:allow-ajp-from-ip (rule-lib/allow-ajp-from-ip infra-config)}})]
+    (selmer/render-file "ip_tables_filter.templ" enriched-config)))
 
 (defn- write-iptables-file
   ""

@@ -16,33 +16,34 @@
 
 (ns dda.pallet.dda-hardening-crate.infra.iptables-rule-lib-test
   (:require
+   [clojure.string :as string]
    [clojure.test :refer :all]
    [dda.pallet.dda-hardening-crate.infra.iptables-rule-lib :as sut]))
 
 (def with-allow-established
-  {:input {:input {:ip-version #{:ipv4}
-                   :static-rules #{:antilockout-ssh :allow-local
-                                   :drop-ping :allow-ftp-as-client :allow-dns-as-client
-                                   :allow-established-input :allow-established-output
-                                   :log-and-drop-remaining-input
-                                   :log-and-drop-remaining-output}
-                   :allow-ajp-from-ip ["0.0.0.1" "0.0.0.2"]
-                   :incomming-ports ["80" "443"]
-                   :outgoing-ports ["443"]}}
+  {:input {:ip-version #{:ipv4}
+           :static-rules #{:antilockout-ssh :allow-local
+                           :drop-ping :allow-ftp-as-client :allow-dns-as-client
+                           :allow-established-input :allow-established-output
+                           :log-and-drop-remaining-input
+                           :log-and-drop-remaining-output}
+           :allow-ajp-from-ip ["0.0.0.1" "0.0.0.2"]
+           :incomming-ports ["80" "443"]
+           :outgoing-ports ["443"]}
    :expected-ajp "
 # allow incoming ajp traffic from ip
 -A INPUT -p tcp -s 0.0.0.1 --dport 8009 -j ACCEPT
 -A INPUT -p tcp -s 0.0.0.2 --dport 8009 -j ACCEPT"})
 
 (def without-allow-established
-  {:input {:input {:ip-version #{:ipv4}
-                   :static-rules #{:antilockout-ssh :allow-local
-                                   :drop-ping :allow-ftp-as-client :allow-dns-as-client
-                                   :log-and-drop-remaining-input
-                                   :log-and-drop-remaining-output}
-                   :allow-ajp-from-ip ["0.0.0.1" "0.0.0.2"]
-                   :incomming-ports ["80" "443"]
-                   :outgoing-ports ["443"]}}
+  {:input {:ip-version #{:ipv4}
+           :static-rules #{:antilockout-ssh :allow-local
+                           :drop-ping :allow-ftp-as-client :allow-dns-as-client
+                           :log-and-drop-remaining-input
+                           :log-and-drop-remaining-output}
+           :allow-ajp-from-ip ["0.0.0.1" "0.0.0.2"]
+           :incomming-ports ["80" "443"]
+           :outgoing-ports ["443"]}
    :expected-ajp "
 # allow incoming ajp traffic from ip
 -A INPUT -p tcp -s 0.0.0.1 --dport 8009 -j ACCEPT
@@ -53,8 +54,8 @@
 (deftest allow-ajp-from-ip-test
   []
   (testing "with allow-established"
-    (is (= (:expected-ajp with-allow-established)
-           (sut/allow-ajp-from-ip (:input with-allow-established)))))
+    (is (= (string/split-lines (:expected-ajp with-allow-established))
+           (string/split-lines (sut/allow-ajp-from-ip (:input with-allow-established))))))
   (testing "without allow-established"
-    (is (= (:expected-ajp without-allow-established)
-           (sut/allow-ajp-from-ip (:input without-allow-established))))))
+    (is (= (string/split-lines (:expected-ajp without-allow-established))
+           (string/split-lines (sut/allow-ajp-from-ip (:input without-allow-established)))))))

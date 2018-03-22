@@ -15,10 +15,8 @@
 
 # allow local traffic
 -A INPUT -i lo -j ACCEPT
--A OUTPUT -o lo -j ACCEPT{% endif %}{% if static-rules.allow-established-input %}
-
-# allow stablished connection for INPUT
--A INPUT -m state --state ESTABLISHED -j ACCEPT{% endif %}{% if static-rules.allow-dns-as-client %}
+-A OUTPUT -o lo -j ACCEPT{% endif %}{% if allow-ajp-from-ip %}
+{{dynamic-rules.allow-ajp-from-ip}}{% endif %}{% if static-rules.allow-dns-as-client %}
 
 # allow outgoing dns requests
 -A OUTPUT -p udp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
@@ -32,7 +30,13 @@
 -A INPUT -p tcp --sport 1024: --dport 1024: -m state --state ESTABLISHED -j ACCEPT
 -A OUTPUT -p tcp --dport 21 -m state --state NEW,ESTABLISHED -j ACCEPT
 -A OUTPUT -p tcp --dport 20 -m state --state ESTABLISHED -j ACCEPT
--A OUTPUT -p tcp --sport 1024: --dport 1024: -m state --state ESTABLISHED,RELATED,NEW -j ACCEPT{% endif %}{% if static-rules.log-and-drop-remaining-input %}
+-A OUTPUT -p tcp --sport 1024: --dport 1024: -m state --state ESTABLISHED,RELATED,NEW -j ACCEPT{% endif %}{% if static-rules.allow-established-input %}
+
+# allow stablished connection for INPUT
+-A INPUT -m state --state ESTABLISHED -j ACCEPT{% endif %}{% if static-rules.allow-established-output %}
+
+# allow stablished connection for OUTPUT
+-A OUTPUT -m state --state ESTABLISHED -j ACCEPT{% endif %}{% if static-rules.log-and-drop-remaining-input %}
 
 # log and drop all the traffic for INPUT
 -A INPUT -j LOG --log-level 4 --log-prefix "INPUT DROP: "

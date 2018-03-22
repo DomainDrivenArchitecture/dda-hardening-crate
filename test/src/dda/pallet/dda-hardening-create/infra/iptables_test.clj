@@ -16,11 +16,12 @@
 
 (ns dda.pallet.dda-hardening-crate.infra.iptables-test
   (:require
+   [clojure.string :as string]
    [clojure.test :refer :all]
    [dda.pallet.dda-hardening-crate.infra.iptables :as sut]))
 
-(def pair1 {:input {}
-            :expected "*filter
+(def empty-config {:input {}
+                   :expected "*filter
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
@@ -28,9 +29,9 @@
 COMMIT
 "})
 
-(def pair2 {:input {:ip-version #{:ipv4}
-                    :static-rules #{:ipv4 :drop-ping}}
-            :expected "*filter
+(def drop-v4 {:input {:ip-version #{:ipv4}
+                      :static-rules #{:ipv4 :drop-ping}}
+              :expected "*filter
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
@@ -41,15 +42,15 @@ COMMIT
 COMMIT
 "})
 
-(def pair3 {:input {:ip-version #{:ipv4}
-                    :static-rules #{:antilockout-ssh :allow-local
-                                    :drop-ping :allow-ftp-as-client :allow-dns-as-client
-                                    :log-and-drop-remaining-input
-                                    :log-and-drop-remaining-output}
-                    :allow-ajp-from-ip ["0.0.0.1" "0.0.0.2"]
-                    :incomming-ports ["80" "443"]
-                    :outgoing-ports ["443"]}
-            :expected "*filter
+(def full-wo-established {:input {:ip-version #{:ipv4}
+                                  :static-rules #{:antilockout-ssh :allow-local
+                                                  :drop-ping :allow-ftp-as-client :allow-dns-as-client
+                                                  :log-and-drop-remaining-input
+                                                  :log-and-drop-remaining-output}
+                                  :allow-ajp-from-ip ["0.0.0.1" "0.0.0.2"]
+                                  :incomming-ports ["80" "443"]
+                                  :outgoing-ports ["443"]}
+                          :expected "*filter
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
@@ -69,7 +70,7 @@ COMMIT
 -A INPUT -p tcp -s 0.0.0.1 --dport 8009 -j ACCEPT
 -A OUTPUT -p tcp -d 0.0.0.1 --sport 8009 --state ESTABLISHED -j ACCEPT
 -A INPUT -p tcp -s 0.0.0.2 --dport 8009 -j ACCEPT
--A OUTPUT -p tcp -d 0.0.0.1 --sport 8009 --state ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp -d 0.0.0.2 --sport 8009 --state ESTABLISHED -j ACCEPT
 
 # allow incoming traffic for port
 -A INPUT -p tcp --dport 80 -j ACCEPT
@@ -106,16 +107,16 @@ COMMIT
 COMMIT
 "})
 
-(def pair4 {:input {:ip-version #{:ipv4}
-                    :static-rules #{:antilockout-ssh :allow-local
-                                    :drop-ping :allow-ftp-as-client :allow-dns-as-client
-                                    :allow-established-input :allow-established-output
-                                    :log-and-drop-remaining-input
-                                    :log-and-drop-remaining-output}
-                    :allow-ajp-from-ip ["0.0.0.1" "0.0.0.2"]
-                    :incomming-ports ["80" "443"]
-                    :outgoing-ports ["443"]}
-            :expected "*filter
+(def full-with-established {:input {:ip-version #{:ipv4}
+                                    :static-rules #{:antilockout-ssh :allow-local
+                                                    :drop-ping :allow-ftp-as-client :allow-dns-as-client
+                                                    :allow-established-input :allow-established-output
+                                                    :log-and-drop-remaining-input
+                                                    :log-and-drop-remaining-output}
+                                    :allow-ajp-from-ip ["0.0.0.1" "0.0.0.2"]
+                                    :incomming-ports ["80" "443"]
+                                    :outgoing-ports ["443"]}
+                            :expected "*filter
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
@@ -173,12 +174,15 @@ COMMIT
 
 (deftest chain-creation-test
   []
-  (testing "filter"
-    (is (= (:expected pair1)
-           (sut/create-ip-version :ipv4 (:input pair1)))))
-  (testing "filter"
-    (is (= (:expected pair2)
-           (sut/create-ip-version :ipv4 (:input pair2)))))
-  (testing "filter"
-    (is (= (:expected pair3)
-           (sut/create-ip-version :ipv4 (:input pair3))))))
+  (testing "empty-config"
+    (is (= (string/split-lines (:expected empty-config))
+           (string/split-lines (sut/create-iptables-filter :ipv4 (:input empty-config))))))
+  (testing "drop-v4"
+    (is (= (string/split-lines (:expected drop-v4))
+           (string/split-lines (sut/create-iptables-filter :ipv4 (:input drop-v4))))))
+  (testing "full-wo-established"
+    (is (= (string/split-lines (:expected full-wo-established))
+           (string/split-lines (sut/create-iptables-filter :ipv4 (:input full-wo-established))))))
+  (testing "full-with-established"
+    (is (= (string/split-lines (:expected full-with-established))
+           (string/split-lines (sut/create-iptables-filter :ipv4 (:input full-with-established)))))))
