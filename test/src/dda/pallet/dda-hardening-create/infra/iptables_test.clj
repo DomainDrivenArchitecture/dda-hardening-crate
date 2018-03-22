@@ -44,7 +44,7 @@ COMMIT
 (def pair3 {:input {:ip-version #{:ipv4}
                     :static-rules #{:antilockout-ssh :allow-local
                                     :drop-ping :allow-ftp-as-client :allow-dns-as-client
-                                    :allow-established-input :log-and-drop-remaining-input
+                                    :log-and-drop-remaining-input
                                     :log-and-drop-remaining-output}
                     :allow-ajp-from-ip ["0.0.0.1" "0.0.0.2"]
                     :incomming-ports ["80" "443"]
@@ -65,8 +65,21 @@ COMMIT
 -A INPUT -i lo -j ACCEPT
 -A OUTPUT -o lo -j ACCEPT
 
-# allow stablished connection for INPUT
--A INPUT -m state --state ESTABLISHED -j ACCEPT
+# allow incoming ajp traffic from ip
+-A INPUT -p tcp -s 0.0.0.1 --dport 8009 -j ACCEPT
+-A OUTPUT -p tcp -d 0.0.0.1 --sport 8009 --state ESTABLISHED -j ACCEPT
+-A INPUT -p tcp -s 0.0.0.2 --dport 8009 -j ACCEPT
+-A OUTPUT -p tcp -d 0.0.0.1 --sport 8009 --state ESTABLISHED -j ACCEPT
+
+# allow incoming traffic for port
+-A INPUT -p tcp --dport 80 -j ACCEPT
+-A OUTPUT -p --sport 80 --state ESTABLISHED -j ACCEPT
+-A INPUT -p tcp --dport 443 -j ACCEPT
+-A OUTPUT -p tcp --sport 443 --state ESTABLISHED -j ACCEPT
+
+# allow outgoing traffic for port
+-A OUTPUT -p tcp --dport 443 -j ACCEPT
+-A INPUT -p tcp --sport 443 --state ESTABLISHED -j ACCEPT
 
 # allow outgoing dns requests
 -A OUTPUT -p udp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
@@ -93,15 +106,79 @@ COMMIT
 COMMIT
 "})
 
+(def pair4 {:input {:ip-version #{:ipv4}
+                    :static-rules #{:antilockout-ssh :allow-local
+                                    :drop-ping :allow-ftp-as-client :allow-dns-as-client
+                                    :allow-established-input :allow-established-output
+                                    :log-and-drop-remaining-input
+                                    :log-and-drop-remaining-output}
+                    :allow-ajp-from-ip ["0.0.0.1" "0.0.0.2"]
+                    :incomming-ports ["80" "443"]
+                    :outgoing-ports ["443"]}
+            :expected "*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+
+# ensure that incoming ssh works
+-A INPUT -p tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
+
+# drop v4 ping
+-A INPUT  -p icmp -j DROP
+
+# allow local traffic
+-A INPUT -i lo -j ACCEPT
+-A OUTPUT -o lo -j ACCEPT
+
+# allow incoming ajp traffic from ip
+-A INPUT -p tcp -s 0.0.0.1 --dport 8009 -j ACCEPT
+-A INPUT -p tcp -s 0.0.0.2 --dport 8009 -j ACCEPT
+
+# allow incoming traffic for port
+-A INPUT -p tcp --dport 80 -j ACCEPT
+-A INPUT -p tcp --dport 443 -j ACCEPT
+
+# allow outgoing traffic for port
+-A OUTPUT -p tcp --dport 443 -j ACCEPT
+
+# allow outgoing dns requests
+-A OUTPUT -p udp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
+
+# allow outgoing ftp requests
+-A INPUT -p tcp --sport 21 -m state --state ESTABLISHED -j ACCEPT
+-A INPUT -p tcp --sport 20 -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -p tcp --sport 1024: --dport 1024: -m state --state ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 21 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 20 -m state --state ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --sport 1024: --dport 1024: -m state --state ESTABLISHED,RELATED,NEW -j ACCEPT
+
+# allow stablished connection for INPUT
+-A INPUT -m state --state ESTABLISHED -j ACCEPT
+
+# allow stablished connection for OUTPUT
+-A OUTPUT -m state --state ESTABLISHED -j ACCEPT
+
+# log and drop all the traffic for INPUT
+-A INPUT -j LOG --log-level 4 --log-prefix \"INPUT DROP: \"
+-A INPUT -j DROP
+
+# log and drop all the traffic for OUTPUT
+-A OUTPUT -j LOG --log-level 4 --log-prefix \"OUTPUT DROP: \"
+-A OUTPUT -j DROP
+
+COMMIT
+"})
 
 (deftest chain-creation-test
   []
   (testing "filter"
     (is (= (:expected pair1)
-           (sut/create-ip-version nil (:input pair1)))))
+           (sut/create-ip-version :ipv4 (:input pair1)))))
   (testing "filter"
     (is (= (:expected pair2)
-           (sut/create-ip-version nil (:input pair2)))))
+           (sut/create-ip-version :ipv4 (:input pair2)))))
   (testing "filter"
     (is (= (:expected pair3)
-           (sut/create-ip-version nil (:input pair3))))))
+           (sut/create-ip-version :ipv4 (:input pair3))))))

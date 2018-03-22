@@ -16,32 +16,42 @@
 
 (ns dda.pallet.dda-hardening-crate.infra.iptables-rule-lib
   (:require
+    [clojure.string :as string]
+    [schema.core :as s]
     [pallet.actions :as actions]
     [pallet.crate :as crate]
     [clojure.string :as string]))
 
+(def IpVersion (s/enum :ipv6 :ip4))
 
-(defn- expand-chain
-  ""
-  [chain]
-  (case chain
-   :input "INPUT"
-   :output "OUTPUT"
-   :foreward "FORWARD"))
+(def IpTables {:ip-version (hash-set IpVersion)
+               :static-rules (hash-set (s/enum :antilockout-ssh :allow-local :drop-ping
+                                               :allow-ftp-as-client :allow-dns-as-client
+                                               :allow-established-input :allow-established-output
+                                               :log-and-drop-remaining-input :log-and-drop-remaining-output))
+               (s/optional-key :allow-ajp-from-ip) [s/Str] ;incoming ip address
+               (s/optional-key :incomming-ports) [s/Str]
+               (s/optional-key :outgoing-ports) [s/Str]}) ; allow-destination-port)
 
+(s/defn
+  allow-ajp-from-single-ip :- s/Str
+  [allow-established-output :- s/Bool
+   ip :- s/Str]
+  [(str "-A INPUT -p tcp -s " ip " --dport 8009 -j ACCEPT")
+   (when (not allow-established-output)
+     (str "-A OUTPUT -p tcp -d " ip " --sport 8009 --state ESTABLISHED -j ACCEPT"))])
 
-(defn- expand-table
-  ""
-  [table]
-  (case table
-   :filter "filter"
-   :mangle "mangle"
-   :nat "nat"))
-
-(defn allow-ajp-from-ip
-  [ip]
-  ["# allow incoming traffic from ip"
-   (str "-A INPUT -p tcp -s " ip " --dport 8009 -j ACCEPT")])
+(s/defn
+  allow-ajp-from-ip :- s/Str
+  [config :- IpTables]
+  (let [{:keys [allow-established-output allow-ajp-from-ip]} config]
+    (string/join
+      \newline
+      (flatten
+        (conj
+          [""
+           "# allow incoming ajp traffic from ip"]
+          (map (partial allow-ajp-from-single-ip allow-established-output) allow-ajp-from-ip))))))
 
 (defn allow-destination-port-rule
   ""

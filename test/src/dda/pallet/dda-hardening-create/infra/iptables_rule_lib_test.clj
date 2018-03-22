@@ -1,0 +1,60 @@
+; Licensed to the Apache Software Foundation (ASF) under one
+; or more contributor license agreements. See the NOTICE file
+; distributed with this work for additional information
+; regarding copyright ownership. The ASF licenses this file
+; to you under the Apache License, Version 2.0 (the
+; "License"); you may not use this file except in compliance
+; with the License. You may obtain a copy of the License at
+;
+; http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS,
+; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+; See the License for the specific language governing permissions and
+; limitations under the License.
+
+(ns dda.pallet.dda-hardening-crate.infra.iptables-rule-lib-test
+  (:require
+   [clojure.test :refer :all]
+   [dda.pallet.dda-hardening-crate.infra.iptables-rule-lib :as sut]))
+
+(def with-allow-established
+  {:input {:input {:ip-version #{:ipv4}
+                   :static-rules #{:antilockout-ssh :allow-local
+                                   :drop-ping :allow-ftp-as-client :allow-dns-as-client
+                                   :allow-established-input :allow-established-output
+                                   :log-and-drop-remaining-input
+                                   :log-and-drop-remaining-output}
+                   :allow-ajp-from-ip ["0.0.0.1" "0.0.0.2"]
+                   :incomming-ports ["80" "443"]
+                   :outgoing-ports ["443"]}}
+   :expected-ajp "
+# allow incoming ajp traffic from ip
+-A INPUT -p tcp -s 0.0.0.1 --dport 8009 -j ACCEPT
+-A INPUT -p tcp -s 0.0.0.2 --dport 8009 -j ACCEPT"})
+
+(def without-allow-established
+  {:input {:input {:ip-version #{:ipv4}
+                   :static-rules #{:antilockout-ssh :allow-local
+                                   :drop-ping :allow-ftp-as-client :allow-dns-as-client
+                                   :log-and-drop-remaining-input
+                                   :log-and-drop-remaining-output}
+                   :allow-ajp-from-ip ["0.0.0.1" "0.0.0.2"]
+                   :incomming-ports ["80" "443"]
+                   :outgoing-ports ["443"]}}
+   :expected-ajp "
+# allow incoming ajp traffic from ip
+-A INPUT -p tcp -s 0.0.0.1 --dport 8009 -j ACCEPT
+-A OUTPUT -p tcp -d 0.0.0.1 --sport 8009 --state ESTABLISHED -j ACCEPT
+-A INPUT -p tcp -s 0.0.0.2 --dport 8009 -j ACCEPT
+-A OUTPUT -p tcp -d 0.0.0.2 --sport 8009 --state ESTABLISHED -j ACCEPT"})
+
+(deftest allow-ajp-from-ip-test
+  []
+  (testing "with allow-established"
+    (is (= (:expected-ajp with-allow-established)
+           (sut/allow-ajp-from-ip (:input with-allow-established)))))
+  (testing "without allow-established"
+    (is (= (:expected-ajp without-allow-established)
+           (sut/allow-ajp-from-ip (:input without-allow-established))))))

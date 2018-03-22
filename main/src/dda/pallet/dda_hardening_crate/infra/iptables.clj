@@ -24,16 +24,18 @@
     [pallet.stevedore :as stevedore]
     [dda.pallet.dda-hardening-crate.infra.iptables-rule-lib :as rule-lib]))
 
+(def IpVersion rule-lib/IpVersion)
 
-(def IpTables {:ip-version (hash-set (s/enum :ipv6 :ip4))
-               :static-rules (hash-set (s/enum :antilockout-ssh :allow-local :drop-ping
-                                               :allow-ftp-as-client :allow-dns-as-client
-                                               :allow-established-input :log-and-drop-remaining-input
-                                               :log-and-drop-remaining-output))
-               (s/optional-key :allow-ajp-from-ip) [s/Str] ;incoming ip address
-               (s/optional-key :incomming-ports) [s/Str]
-               (s/optional-key :outgoing-ports) [s/Str]}) ; allow-destination-port)
+(def IpTables rule-lib/IpTables)
 
+(s/defn
+  create-iptables-filter
+  [ip-version :- IpVersion
+   infra-config :- IpTables]
+  (let [enriched-config (merge
+                          infra-config
+                          {:ip-version ip-version})])
+  (selmer/render-file "ip_tables_filter.templ" infra-config))
 
 (defn- write-iptables-file
   ""
@@ -45,13 +47,6 @@
     (string/join
       \newline
       rules)))
-
-(s/defn
-  create-iptables-filter
-  [ip-version :- s/Keyword
-   infra-config :- IpTables]
-  (selmer/render-file "ip_tables_filter.templ" infra-config))
-
 
 (s/defn
   configure-iptables
