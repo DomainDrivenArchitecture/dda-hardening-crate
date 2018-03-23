@@ -78,3 +78,26 @@
           (map (partial allow-incoming-port-single
                  (contains? static-rules :allow-established-output))
                incomming-ports))))))
+
+(s/defn
+  allow-outgoing-port-single :- [s/Str]
+  [allow-established-input :- s/Bool
+   port :- s/Str]
+  (into
+    [(str "-A OUTPUT -p tcp --dport " port " -j ACCEPT")]
+    (when (not allow-established-input)
+      [(str "-A INPUT -p tcp --sport " port " --state ESTABLISHED -j ACCEPT")])))
+
+(s/defn
+  allow-outgoing-port :- s/Str
+  [config :- IpTables]
+  (let [{:keys [static-rules outgoing-ports]} config]
+    (string/join
+      \newline
+      (flatten
+        (conj
+          [""
+           "# allow outgoing traffic for port"]
+          (map (partial allow-outgoing-port-single
+                 (contains? static-rules :allow-established-input))
+               outgoing-ports))))))
