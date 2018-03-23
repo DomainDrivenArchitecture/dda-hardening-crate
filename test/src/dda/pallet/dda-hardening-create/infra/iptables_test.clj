@@ -76,7 +76,7 @@ COMMIT
 
 # allow incoming traffic for port
 -A INPUT -p tcp --dport 80 -j ACCEPT
--A OUTPUT -p --sport 80 --state ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --sport 80 --state ESTABLISHED -j ACCEPT
 -A INPUT -p tcp --dport 443 -j ACCEPT
 -A OUTPUT -p tcp --sport 443 --state ESTABLISHED -j ACCEPT
 
