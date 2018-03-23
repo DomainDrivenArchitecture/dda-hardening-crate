@@ -17,11 +17,10 @@
 (ns dda.pallet.dda-hardening-crate.domain
  (:require
    [schema.core :as s]
-   [dda.pallet.core.dda-crate :as dda-crate]
    [dda.pallet.commons.secret :as secret]
    [dda.pallet.dda-hardening-crate.infra :as infra]))
 
-(def InfraResult {infra/facility infra/HardeningConfig})
+(def InfraResult {infra/facility infra/HardeningInfra})
 
 (def HardeningDomain
   (s/either
@@ -36,14 +35,11 @@
                           :allow-dns-as-client :allow-established :log-and-drop-remaining}}
   :incomming-ports ["80" "443"]})
 
-(def HardeningDomainConfig
-  infra/HardeningConfig)
-
-(def HardeningResolvedConfig
-  (secret/create-resolved-schema HardeningDomainConfig))
+(def HardeningDomainResolved
+  (secret/create-resolved-schema HardeningDomain))
 
 (s/defn ^:always-validate
   infra-configuration :- InfraResult
-  [domain-config :- HardeningResolvedConfig]
+  [domain-config :- HardeningDomainResolved]
   (let [{:keys [versiom ports ping]} domain-config]
     {infra/facility domain-config}))
