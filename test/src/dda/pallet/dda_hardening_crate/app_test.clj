@@ -14,7 +14,7 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-(ns dda.pallet.dda-hardening-create.app-test
+(ns dda.pallet.dda-hardening-crate.app-test
   (:require
     [clojure.test :refer :all]
     [schema.core :as s]
@@ -24,5 +24,3 @@
   (testing
     "test plan creation"
       (is sut/with-hardening)))
-    
-

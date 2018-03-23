@@ -14,7 +14,7 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-(ns dda.pallet.dda-hardening-create.domain-test
+(ns dda.pallet.dda-hardening-crate.domain-test
   (:require
     [clojure.test :refer :all]
     [schema.core :as s]
