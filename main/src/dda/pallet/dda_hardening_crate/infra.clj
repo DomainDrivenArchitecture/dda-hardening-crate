@@ -20,55 +20,51 @@
    [clojure.tools.logging :as logging]
    [schema.core :as s]
    [pallet.actions :as actions]
-   [pallet.crate :as crate]
+   [dda.pallet.core.infra :as core-infra]
    [dda.pallet.dda-hardening-crate.infra.iptables :as iptables]
-   [dda.pallet.dda-hardening-crate.infra.iptables-config :as iptables-config]
-   [dda.pallet.dda-hardening-crate.infra.sshd :as sshd]
-   [dda.pallet.core.dda-crate :as dda-crate]))
+   [dda.pallet.dda-hardening-crate.infra.sshd :as sshd]))
 
 (def facility :dda-hardening)
-(def version [0 4 0])
 
 (def HardeningInfra
  {:settings (hash-set (s/enum :unattende-upgrades
                               :sshd-key-only))
   (s/optional-key :iptables) iptables/IpTables})
 
-(def dda-hardening-crate
-  (dda-crate/make-dda-crate
-    :facility facility
-    :version version))
-
-(def with-hardening
-  (dda-crate/create-server-spec dda-hardening-crate))
-
 (defn install-unattended-upgrades []
   (actions/package "unattended-upgrades"))
 
 (s/defn install
   "installation of hardening crate"
-  [config :- HardeningConfig]
-  (actions/as-action
-      (logging/info (str "12345")))
-  (install-unattended-upgrades)
-  (when (contains? config :iptables)
-    (iptables/install-iptables)))
+  [config :- HardeningInfra]
+  (let [{:keys [settings]} config]
+    (when (contains? settings :unattende-upgrades)
+      (install-unattended-upgrades))
+    (when (contains? config :iptables)
+      (iptables/install-iptables))))
 
 (s/defn configure
   "configuration of hardening crate"
-  [config :- HardeningConfig]
-  (sshd/configure-sshd)
-  (when (contains? config :iptables)
-    (let [iptables-config (get-in config [:iptables])
-          rules (if (get-in iptables-config [:default])
-                  (iptables-config/default-web-firewall)
-                  (get-in iptables-config [:custom-rules]))]
-     (iptables/configure-iptables :rules rules))))
+  [config :- HardeningInfra]
+  (let [{:keys [settings]} config]
+    (when (contains? settings :sshd-key-only)
+      (sshd/configure-sshd))
+    (when (contains? config :iptables)
+      (iptables/configure-iptables config))))
 
-(s/defmethod dda-crate/dda-install facility
-  [dda-crate config]
+(s/defmethod
+  core-infra/dda-install facility
+  [core-infra config]
   (install config))
 
-(s/defmethod dda-crate/dda-configure facility
-  [dda-crate config]
+(s/defmethod
+  core-infra/dda-configure facility
+  [core-infra config]
   (configure config))
+
+(def dda-hardening-crate
+  (core-infra/make-dda-crate-infra
+   :facility facility))
+
+(def with-hardening
+  (core-infra/create-infra-plan dda-hardening-crate))

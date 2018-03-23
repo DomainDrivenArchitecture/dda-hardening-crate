@@ -43,37 +43,24 @@
                             :dns-as-client (rule-lib/allow-outgoing-dns infra-config)}})]
     (selmer/render-file "ip_tables_filter.templ" enriched-config)))
 
-(defn- write-iptables-file
-  ""
-  [file-name rules]
-  (actions/remote-file
-    file-name
-    :overwrite-changes true
-    :content
-    (string/join
-      \newline
-      rules)))
-
 (s/defn
   configure-iptables
   [infra-config :- IpTables]
-  (let [v4-content (create-iptables-filter :ipv4 infra-config)
-        v6-content ""]
-    (write-iptables-file
-      "/etc/iptables/rules.v4"
-      v4-content)
-    (write-iptables-file
-      "/etc/iptables/rules.v6"
-      v6-content)))
-
+  (let [{:keys [ip-version]} infra-config]
+    (when (contains? ip-version :ipv4)
+      (actions/remote-file
+        "/etc/iptables/rules.v4"
+        :content (create-iptables-filter :ipv4)))
+    (when (contains? ip-version :ipv6)
+      (actions/remote-file
+        "/etc/iptables/rules.v6"
+        :content (create-iptables-filter :ipv6)))))
 
 (defn reload-config
   []
   (actions/exec
-      {:language :bash}
-      (stevedore/script
-        ("service netfilter-persistent restart"))))
-
+    "restart netfilter"
+    ("service" "netfilter-persistent" "restart")))
 
 (defn install-iptables
   ""
