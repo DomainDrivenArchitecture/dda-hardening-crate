@@ -84,10 +84,10 @@ COMMIT
 -A OUTPUT -p tcp --dport 443 -j ACCEPT
 -A INPUT -p tcp --sport 443 --state ESTABLISHED -j ACCEPT
 
-# allow outgoing dns requests
+# allow outgoing traffic for dns
 -A OUTPUT -p udp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
--A INPUT -p udp --sport 53 -m state --state ESTABLISHED -j ACCEPT
 -A OUTPUT -p tcp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A INPUT -p udp --sport 53 -m state --state ESTABLISHED -j ACCEPT
 -A INPUT -p tcp --sport 53 -m state --state ESTABLISHED -j ACCEPT
 
 # allow outgoing ftp requests
@@ -145,7 +145,7 @@ COMMIT
 # allow outgoing traffic for port
 -A OUTPUT -p tcp --dport 443 -j ACCEPT
 
-# allow outgoing dns requests
+# allow outgoing traffic for dns
 -A OUTPUT -p udp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
 -A OUTPUT -p tcp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
 

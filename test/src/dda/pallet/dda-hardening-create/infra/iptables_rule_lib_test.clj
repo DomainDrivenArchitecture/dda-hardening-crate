@@ -41,7 +41,11 @@
 -A INPUT -p tcp --dport 443 -j ACCEPT"
    :expect-outgoing-ports "
 # allow outgoing traffic for port
--A OUTPUT -p tcp --dport 443 -j ACCEPT"})
+-A OUTPUT -p tcp --dport 443 -j ACCEPT"
+   :expect-outgoing-dns "
+# allow outgoing traffic for dns
+-A OUTPUT -p udp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT"})
 
 (def without-allow-established
   {:input {:ip-version #{:ipv4}
@@ -67,9 +71,15 @@
    :expect-outgoing-ports "
 # allow outgoing traffic for port
 -A OUTPUT -p tcp --dport 443 -j ACCEPT
--A INPUT -p tcp --sport 443 --state ESTABLISHED -j ACCEPT"})
+-A INPUT -p tcp --sport 443 --state ESTABLISHED -j ACCEPT"
+   :expect-outgoing-dns "
+# allow outgoing traffic for dns
+-A OUTPUT -p udp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A INPUT -p udp --sport 53 -m state --state ESTABLISHED -j ACCEPT
+-A INPUT -p tcp --sport 53 -m state --state ESTABLISHED -j ACCEPT"})
 
-(deftest allow-ajp-from-ip-test
+(deftest test-with-allow-established
   []
   (s/set-fn-validation! true)
   (testing "ajp with allow-established"
@@ -81,6 +91,13 @@
   (testing "outgoing ports with allow-established"
     (is (= (string/split-lines (:expect-outgoing-ports with-allow-established))
            (string/split-lines (sut/allow-outgoing-port (:input with-allow-established))))))
+  (testing "outgoing dns with allow-established"
+    (is (= (string/split-lines (:expect-outgoing-dns with-allow-established))
+           (string/split-lines (sut/allow-outgoing-dns (:input with-allow-established)))))))
+
+(deftest test-without-allow-established
+  []
+  (s/set-fn-validation! true)
   (testing "ajp without allow-established"
     (is (= (string/split-lines (:expected-ajp without-allow-established))
            (string/split-lines (sut/allow-ajp-from-ip (:input without-allow-established))))))
@@ -89,4 +106,7 @@
            (string/split-lines (sut/allow-incoming-port (:input without-allow-established))))))
   (testing "outgoing ports without allow-established"
     (is (= (string/split-lines (:expect-outgoing-ports without-allow-established))
-           (string/split-lines (sut/allow-outgoing-port (:input without-allow-established)))))))
+           (string/split-lines (sut/allow-outgoing-port (:input without-allow-established))))))
+  (testing "outgoing dns without allow-established"
+    (is (= (string/split-lines (:expect-outgoing-dns without-allow-established))
+           (string/split-lines (sut/allow-outgoing-dns (:input without-allow-established)))))))

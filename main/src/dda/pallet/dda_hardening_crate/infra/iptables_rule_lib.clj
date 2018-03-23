@@ -101,3 +101,20 @@
           (map (partial allow-outgoing-port-single
                  (contains? static-rules :allow-established-input))
                outgoing-ports))))))
+
+(s/defn
+  allow-outgoing-dns :- s/Str
+  [config :- IpTables]
+  (let [{:keys [static-rules]} config]
+    (if (contains? static-rules :allow-dns-as-client)
+      (string/join
+        \newline
+        (into
+          [""
+           "# allow outgoing traffic for dns"
+           "-A OUTPUT -p udp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT"
+           "-A OUTPUT -p tcp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT"]
+          (when (not (contains? static-rules :allow-established-input))
+            ["-A INPUT -p udp --sport 53 -m state --state ESTABLISHED -j ACCEPT"
+             "-A INPUT -p tcp --sport 53 -m state --state ESTABLISHED -j ACCEPT"])))
+      "")))

@@ -17,13 +17,9 @@
 -A INPUT -i lo -j ACCEPT
 -A OUTPUT -o lo -j ACCEPT{% endif %}{% if allow-ajp-from-ip %}
 {{dynamic-rules.allow-ajp-from-ip}}{% endif %}{% if incomming-ports %}
-{{dynamic-rules.incomming-ports}}{% endif %}{% if static-rules.allow-dns-as-client %}
-
-# allow outgoing dns requests
--A OUTPUT -p udp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
--A INPUT -p udp --sport 53 -m state --state ESTABLISHED -j ACCEPT
--A OUTPUT -p tcp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
--A INPUT -p tcp --sport 53 -m state --state ESTABLISHED -j ACCEPT{% endif %}{% if static-rules.allow-ftp-as-client %}
+{{dynamic-rules.incomming-ports}}{% endif %}{% if outgoing-ports %}
+{{dynamic-rules.outgoing-ports}}{% endif %}{% if static-rules.allow-dns-as-client %}
+{{dynamic-rules.dns-as-client}}{% endif %}{% if static-rules.allow-ftp-as-client %}
 
 # allow outgoing ftp requests
 -A INPUT -p tcp --sport 21 -m state --state ESTABLISHED -j ACCEPT

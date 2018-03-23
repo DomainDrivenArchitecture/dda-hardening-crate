@@ -38,7 +38,9 @@
                           {:ip-version {ip-version true}}
                           {:dynamic-rules
                            {:allow-ajp-from-ip (rule-lib/allow-ajp-from-ip infra-config)
-                            :incomming-ports (rule-lib/allow-incoming-port infra-config)}})]
+                            :incomming-ports (rule-lib/allow-incoming-port infra-config)
+                            :outgoing-ports (rule-lib/allow-outgoing-port infra-config)
+                            :dns-as-client (rule-lib/allow-outgoing-dns infra-config)}})]
     (selmer/render-file "ip_tables_filter.templ" enriched-config)))
 
 (defn- write-iptables-file
