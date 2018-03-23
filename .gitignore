@@ -1,6 +1,5 @@
 pom.xml
 pom.xml.asc
-*jar
 /lib/
 /classes/
 /target/
@@ -12,3 +11,4 @@ pom.xml.asc
 .nrepl-port
 /logs/
 /bin/
+/.vscode

@@ -1,0 +1,46 @@
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]{% if static-rules.antilockout-ssh %}
+
+# ensure that incoming ssh works
+-A INPUT -p tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT{% endif %}{% if all static-rules.drop-ping ip-version.ipv4 %}
+
+# drop v4 ping
+-A INPUT  -p icmp -j DROP{% endif %}{% if all static-rules.drop-ping ip-version.ipv6 %}
+
+# drop v6 ping TODO: fix this
+-A INPUT  -p icmpv6 -j DROP{% endif %}{% if static-rules.allow-local %}
+
+# allow local traffic
+-A INPUT -i lo -j ACCEPT
+-A OUTPUT -o lo -j ACCEPT{% endif %}{% if allow-ajp-from-ip %}
+{{dynamic-rules.allow-ajp-from-ip}}{% endif %}{% if incomming-ports %}
+{{dynamic-rules.incomming-ports}}{% endif %}{% if outgoing-ports %}
+{{dynamic-rules.outgoing-ports}}{% endif %}{% if static-rules.allow-dns-as-client %}
+{{dynamic-rules.dns-as-client}}{% endif %}{% if static-rules.allow-ftp-as-client %}
+
+# allow outgoing ftp requests
+-A INPUT -p tcp --sport 21 -m state --state ESTABLISHED -j ACCEPT
+-A INPUT -p tcp --sport 20 -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -p tcp --sport 1024: --dport 1024: -m state --state ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 21 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 20 -m state --state ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --sport 1024: --dport 1024: -m state --state ESTABLISHED,RELATED,NEW -j ACCEPT{% endif %}{% if static-rules.allow-established-input %}
+
+# allow stablished connection for INPUT
+-A INPUT -m state --state ESTABLISHED -j ACCEPT{% endif %}{% if static-rules.allow-established-output %}
+
+# allow stablished connection for OUTPUT
+-A OUTPUT -m state --state ESTABLISHED -j ACCEPT{% endif %}{% if static-rules.log-and-drop-remaining-input %}
+
+# log and drop all the traffic for INPUT
+-A INPUT -j LOG --log-level 4 --log-prefix "INPUT DROP: "
+-A INPUT -j DROP{% endif %}{% if static-rules.log-and-drop-remaining-output %}
+
+# log and drop all the traffic for OUTPUT
+-A OUTPUT -j LOG --log-level 4 --log-prefix "OUTPUT DROP: "
+-A OUTPUT -j DROP{% endif %}
+
+COMMIT
