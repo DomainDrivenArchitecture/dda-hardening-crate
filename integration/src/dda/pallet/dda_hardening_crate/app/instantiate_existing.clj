@@ -17,42 +17,34 @@
 (ns dda.pallet.dda-hardening-crate.app.instantiate-existing
   (:require
     [clojure.inspector :as inspector]
-    [pallet.repl :as pr]
-    [dda.pallet.commons.session-tools :as session-tools]
-    [dda.pallet.commons.pallet-schema :as ps]
-    [dda.pallet.commons.operation :as operation]
-    [dda.pallet.commons.existing :as existing]
+    [dda.pallet.core.app :as core-app]
     [dda.pallet.dda-hardening-crate.app :as app]))
 
-(defn apply-install [& options]
- (let [{:keys [domain targets]
-        :or {domain "hardening.edn"
-             targets "targets.edn"}} options
-       target-config (app/load-targets targets)
-       domain-config (app/load-domain domain)]
-   (operation/do-apply-install
-     (app/existing-provider target-config)
-     (app/existing-provisioning-spec domain-config target-config)
-     :summarize-session true)))
-
-(defn apply-configure [& options]
- (let [{:keys [domain targets]
-        :or {domain "hardening.edn"
-             targets "targets.edn"}} options
-       target-config (app/load-targets targets)
-       domain-config (app/load-domain domain)]
-   (operation/do-apply-configure
-     (app/existing-provider target-config)
-     (app/existing-provisioning-spec domain-config target-config)
-     :summarize-session true)))
-
-(defn server-test [& options]
-  (let [{:keys [domain targets]
+(defn install
+  [& options]
+  (let [{:keys [domain targets summarize-session]
          :or {domain "hardening.edn"
-              targets "targets.edn"}} options
-        target-config (app/load-targets targets)
-        domain-config (app/load-domain domain)]
-    (operation/do-test
-      (app/existing-provider target-config)
-      (app/existing-provisioning-spec domain-config target-config)
-      :summarize-session true)))
+              targets "localhost-target.edn"
+              summarize-session true}} options]
+    (core-app/existing-install app/crate-app
+                          {:domain domain
+                           :targets targets})))
+
+(defn configure
+ [& options]
+ (let [{:keys [domain targets summarize-session]
+        :or {domain "hardening.edn"
+             targets "localhost-target.edn"
+             summarize-session true}} options]
+  (core-app/existing-configure app/crate-app
+                          {:domain domain
+                           :targets targets})))
+
+(defn serverspec
+  [& options]
+  (let [{:keys [domain targets summarize-session]
+         :or {domain "hardening.edn"
+              targets "localhost-target.edn"
+              summarize-session true}} options]
+    (core-app/existing-serverspec app/crate-app
+                             {:domain domain})))
