@@ -39,7 +39,32 @@ COMMIT
 :OUTPUT ACCEPT [0:0]
 
 # drop v4 ping
--A INPUT  -p icmp -j DROP
+-A INPUT -p icmp -j DROP
+
+COMMIT
+"})
+
+(def drop-v6 {:input {:ip-version #{:ipv6}
+                      :static-rules #{:drop-ping}}
+              :expected "*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+
+# v6 ping
+# allow error messages that are related to previously seen traffic
+-A INPUT -p icmpv6 --icmpv6-type destination-unreachable -j ACCEPT
+-A INPUT -p icmpv6 --icmpv6-type packet-too-big -j ACCEPT
+-A INPUT -p icmpv6 --icmpv6-type ttl-exceeded -j ACCEPT
+-A INPUT -p icmpv6 --icmpv6-type parameter-problem -j ACCEPT
+# accept neighbor discovery
+-A INPUT -p icmpv6 --icmpv6-type neighbor-solicitation -j ACCEPT
+-A INPUT -p icmpv6 --icmpv6-type neighbor-advertisement -j ACCEPT
+# allow outgoing ping
+-A OUTPUT -p icmpv6 --icmpv6-type echo-request -j ACCEPT
+-A INPUT -p icmpv6 --icmpv6-type echo-reply -j ACCEPT
+# drop the rest
+-A INPUT -p icmpv6 -j DROP
 
 COMMIT
 "})
@@ -62,7 +87,7 @@ COMMIT
 -A OUTPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
 
 # drop v4 ping
--A INPUT  -p icmp -j DROP
+-A INPUT -p icmp -j DROP
 
 # allow local traffic
 -A INPUT -i lo -j ACCEPT
@@ -128,7 +153,7 @@ COMMIT
 -A OUTPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
 
 # drop v4 ping
--A INPUT  -p icmp -j DROP
+-A INPUT -p icmp -j DROP
 
 # allow local traffic
 -A INPUT -i lo -j ACCEPT
@@ -174,7 +199,7 @@ COMMIT
 COMMIT
 "})
 
-(deftest chain-creation-test
+(deftest filter-chain-test
   []
   (s/set-fn-validation! true)
   (testing "empty-config"
@@ -183,6 +208,9 @@ COMMIT
   (testing "drop-v4"
     (is (= (string/split-lines (:expected drop-v4))
            (string/split-lines (sut/create-iptables-filter :ipv4 (:input drop-v4))))))
+  (testing "drop-v6"
+    (is (= (string/split-lines (:expected drop-v6))
+           (string/split-lines (sut/create-iptables-filter :ipv6 (:input drop-v6))))))
   (testing "full-wo-established"
     (is (= (string/split-lines (:expected full-wo-established))
            (string/split-lines (sut/create-iptables-filter :ipv4 (:input full-wo-established))))))

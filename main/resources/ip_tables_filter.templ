@@ -8,10 +8,22 @@
 -A OUTPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT{% endif %}{% if all static-rules.drop-ping ip-version.ipv4 %}
 
 # drop v4 ping
--A INPUT  -p icmp -j DROP{% endif %}{% if all static-rules.drop-ping ip-version.ipv6 %}
+-A INPUT -p icmp -j DROP{% endif %}{% if all static-rules.drop-ping ip-version.ipv6 %}
 
-# drop v6 ping TODO: fix this
--A INPUT  -p icmpv6 -j DROP{% endif %}{% if static-rules.allow-local %}
+# v6 ping
+# allow error messages that are related to previously seen traffic
+-A INPUT -p icmpv6 --icmpv6-type destination-unreachable -j ACCEPT
+-A INPUT -p icmpv6 --icmpv6-type packet-too-big -j ACCEPT
+-A INPUT -p icmpv6 --icmpv6-type ttl-exceeded -j ACCEPT
+-A INPUT -p icmpv6 --icmpv6-type parameter-problem -j ACCEPT
+# accept neighbor discovery
+-A INPUT -p icmpv6 --icmpv6-type neighbor-solicitation -j ACCEPT
+-A INPUT -p icmpv6 --icmpv6-type neighbor-advertisement -j ACCEPT
+# allow outgoing ping
+-A OUTPUT -p icmpv6 --icmpv6-type echo-request -j ACCEPT
+-A INPUT -p icmpv6 --icmpv6-type echo-reply -j ACCEPT
+# drop the rest
+-A INPUT -p icmpv6 -j DROP{% endif %}{% if static-rules.allow-local %}
 
 # allow local traffic
 -A INPUT -i lo -j ACCEPT

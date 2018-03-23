@@ -50,11 +50,11 @@
     (when (contains? ip-version :ipv4)
       (actions/remote-file
         "/etc/iptables/rules.v4"
-        :content (create-iptables-filter :ipv4)))
+        :content (create-iptables-filter :ipv4 infra-config)))
     (when (contains? ip-version :ipv6)
       (actions/remote-file
         "/etc/iptables/rules.v6"
-        :content (create-iptables-filter :ipv6)))))
+        :content (create-iptables-filter :ipv6 infra-config)))))
 
 (defn reload-config
   []
