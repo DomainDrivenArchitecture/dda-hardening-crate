@@ -45,8 +45,7 @@
 (s/defn
   allow-ajp-from-ip :- s/Str
   [config :- IpTables]
-  (let [{:keys [static-rules allow-ajp-from-ip]} config
-        {:keys [allow-established-output]} static-rules]
+  (let [{:keys [static-rules allow-ajp-from-ip]} config]
     (string/join
       \newline
       (flatten
@@ -57,8 +56,25 @@
                  (contains? static-rules :allow-established-output))
                allow-ajp-from-ip))))))
 
-(defn allow-destination-port-rule
-  ""
-  [chain protocol dport]
-  (let [chain-name "x"]
-    [(str "-A " chain-name " -p " protocol " --dport " dport " -j ACCEPT")]))
+(s/defn
+  allow-incoming-port-single :- [s/Str]
+  [allow-established-output :- s/Bool
+   port :- s/Str]
+  (into
+    [(str "-A INPUT -p tcp --dport " port " -j ACCEPT")]
+    (when (not allow-established-output)
+      [(str "-A OUTPUT -p tcp --sport " port " --state ESTABLISHED -j ACCEPT")])))
+
+(s/defn
+  allow-incoming-port :- s/Str
+  [config :- IpTables]
+  (let [{:keys [static-rules incomming-ports]} config]
+    (string/join
+      \newline
+      (flatten
+        (conj
+          [""
+           "# allow incoming traffic for port"]
+          (map (partial allow-incoming-port-single
+                 (contains? static-rules :allow-established-output))
+               incomming-ports))))))

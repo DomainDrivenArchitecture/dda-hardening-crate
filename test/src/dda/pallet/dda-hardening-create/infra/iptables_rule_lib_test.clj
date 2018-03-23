@@ -34,7 +34,11 @@
    :expected-ajp "
 # allow incoming ajp traffic from ip
 -A INPUT -p tcp -s 0.0.0.1 --dport 8009 -j ACCEPT
--A INPUT -p tcp -s 0.0.0.2 --dport 8009 -j ACCEPT"})
+-A INPUT -p tcp -s 0.0.0.2 --dport 8009 -j ACCEPT"
+   :expect-incomming-ports "
+# allow incoming traffic for port
+-A INPUT -p tcp --dport 80 -j ACCEPT
+-A INPUT -p tcp --dport 443 -j ACCEPT"})
 
 (def without-allow-established
   {:input {:ip-version #{:ipv4}
@@ -50,14 +54,26 @@
 -A INPUT -p tcp -s 0.0.0.1 --dport 8009 -j ACCEPT
 -A OUTPUT -p tcp -d 0.0.0.1 --sport 8009 --state ESTABLISHED -j ACCEPT
 -A INPUT -p tcp -s 0.0.0.2 --dport 8009 -j ACCEPT
--A OUTPUT -p tcp -d 0.0.0.2 --sport 8009 --state ESTABLISHED -j ACCEPT"})
+-A OUTPUT -p tcp -d 0.0.0.2 --sport 8009 --state ESTABLISHED -j ACCEPT"
+   :expect-incomming-ports "
+# allow incoming traffic for port
+-A INPUT -p tcp --dport 80 -j ACCEPT
+-A OUTPUT -p tcp --sport 80 --state ESTABLISHED -j ACCEPT
+-A INPUT -p tcp --dport 443 -j ACCEPT
+-A OUTPUT -p tcp --sport 443 --state ESTABLISHED -j ACCEPT"})
 
 (deftest allow-ajp-from-ip-test
   []
   (s/set-fn-validation! true)
-  (testing "with allow-established"
+  (testing "ajp with allow-established"
     (is (= (string/split-lines (:expected-ajp with-allow-established))
            (string/split-lines (sut/allow-ajp-from-ip (:input with-allow-established))))))
-  (testing "without allow-established"
+  (testing "incoming ports with allow-established"
+    (is (= (string/split-lines (:expect-incomming-ports with-allow-established))
+           (string/split-lines (sut/allow-incoming-port (:input with-allow-established))))))
+  (testing "ajp without allow-established"
     (is (= (string/split-lines (:expected-ajp without-allow-established))
-           (string/split-lines (sut/allow-ajp-from-ip (:input without-allow-established)))))))
+           (string/split-lines (sut/allow-ajp-from-ip (:input without-allow-established))))))
+  (testing "incoming ports without allow-established"
+    (is (= (string/split-lines (:expect-incomming-ports without-allow-established))
+           (string/split-lines (sut/allow-incoming-port (:input without-allow-established)))))))

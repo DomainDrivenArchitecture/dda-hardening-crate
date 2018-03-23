@@ -21,7 +21,8 @@
    [schema.core :as s]
    [dda.pallet.dda-hardening-crate.infra.iptables :as sut]))
 
-(def empty-config {:input {}
+(def empty-config {:input {:ip-version #{:ipv4}
+                           :static-rules #{}}
                    :expected "*filter
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
@@ -31,7 +32,7 @@ COMMIT
 "})
 
 (def drop-v4 {:input {:ip-version #{:ipv4}
-                      :static-rules #{:ipv4 :drop-ping}}
+                      :static-rules #{:drop-ping}}
               :expected "*filter
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
