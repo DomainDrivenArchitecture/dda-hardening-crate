@@ -22,7 +22,7 @@
     [pallet.crate :as crate]
     [clojure.string :as string]))
 
-(def IpVersion (s/enum :ipv6 :ip4))
+(def IpVersion (s/enum :ipv6 :ipv4))
 
 (def IpTables {:ip-version (hash-set IpVersion)
                :static-rules (hash-set (s/enum :antilockout-ssh :allow-local :drop-ping
@@ -34,7 +34,7 @@
                (s/optional-key :outgoing-ports) [s/Str]}) ; allow-destination-port)
 
 (s/defn
-  allow-ajp-from-single-ip :- s/Str
+  allow-ajp-from-single-ip :- [s/Str]
   [allow-established-output :- s/Bool
    ip :- s/Str]
   (into
@@ -53,7 +53,9 @@
         (conj
           [""
            "# allow incoming ajp traffic from ip"]
-          (map (partial allow-ajp-from-single-ip allow-established-output) allow-ajp-from-ip))))))
+          (map (partial allow-ajp-from-single-ip
+                 (contains? static-rules :allow-established-output))
+               allow-ajp-from-ip))))))
 
 (defn allow-destination-port-rule
   ""

@@ -18,6 +18,7 @@
   (:require
    [clojure.string :as string]
    [clojure.test :refer :all]
+   [schema.core :as s]
    [dda.pallet.dda-hardening-crate.infra.iptables :as sut]))
 
 (def empty-config {:input {}
@@ -174,6 +175,7 @@ COMMIT
 
 (deftest chain-creation-test
   []
+  (s/set-fn-validation! true)
   (testing "empty-config"
     (is (= (string/split-lines (:expected empty-config))
            (string/split-lines (sut/create-iptables-filter :ipv4 (:input empty-config))))))

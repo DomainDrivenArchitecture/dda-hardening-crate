@@ -18,6 +18,7 @@
   (:require
    [clojure.string :as string]
    [clojure.test :refer :all]
+   [schema.core :as s]
    [dda.pallet.dda-hardening-crate.infra.iptables-rule-lib :as sut]))
 
 (def with-allow-established
@@ -53,6 +54,7 @@
 
 (deftest allow-ajp-from-ip-test
   []
+  (s/set-fn-validation! true)
   (testing "with allow-established"
     (is (= (string/split-lines (:expected-ajp with-allow-established))
            (string/split-lines (sut/allow-ajp-from-ip (:input with-allow-established))))))
