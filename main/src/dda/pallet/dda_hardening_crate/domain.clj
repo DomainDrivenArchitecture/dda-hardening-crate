@@ -31,9 +31,12 @@
 
 (def web-server-default
  {:settings #{:unattende-upgrades :sshd-key-only}
-  :iptables {:settings #{:ip-v6 :antilockout-ssh :v4-drop-ping
-                          :allow-dns-as-client :allow-established :log-and-drop-remaining}}
-  :incomming-ports ["80" "443"]})
+  :iptables {:ip-version #{:ipv4 :ipv6}
+             :static-rules #{:antilockout-ssh :allow-local :drop-ping
+                             :allow-ftp-as-client :allow-dns-as-client
+                             :allow-established-input :allow-established-output
+                             :log-and-drop-remaining-input :log-and-drop-remaining-output}
+             :incomming-ports ["80" "443"]}})
 
 (def HardeningDomainResolved
   (secret/create-resolved-schema HardeningDomain))
