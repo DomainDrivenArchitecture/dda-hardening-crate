@@ -19,7 +19,7 @@
     [clojure.inspector :as inspector]
     [schema.core :as s]
     [dda.pallet.core.app :as core-app]
-    [dda.pallet.dda-hardening-create.app :as app]))
+    [dda.pallet.dda-hardening-crate.app :as app]))
 
 (defn converge-install
   [count & options]
