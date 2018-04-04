@@ -46,11 +46,11 @@
 (s/defn configure
   "configuration of hardening crate"
   [config :- HardeningInfra]
-  (let [{:keys [settings]} config]
+  (let [{:keys [settings iptables]} config]
     (when (contains? settings :sshd-key-only)
       (sshd/configure-sshd))
     (when (contains? config :iptables)
-      (iptables/configure-iptables config))))
+      (iptables/configure-iptables iptables))))
 
 (s/defmethod
   core-infra/dda-install facility
