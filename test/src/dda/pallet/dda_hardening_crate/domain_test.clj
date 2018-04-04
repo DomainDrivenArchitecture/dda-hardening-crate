@@ -21,12 +21,30 @@
     [dda.pallet.dda-hardening-crate.domain :as sut]))
 
 (def config-1
-  {:hardening {:version :IPV4
-               :ports ["80", "400"]
-               :ping true
-               :iptables true}})
+  {:webserver {:additional-incomming-ports ["20"]}})
+
+(def config-2
+  {:appserver {:additional-incomming-ports ["20"]
+               :allow-ajp-from-ip ["192.168.0.1"]}})
+
+(def config-3
+  {:ssh-only-server {:incomming-ports ["80"]}})
+
+(def output-1 {:dda-hardening {:settings #{:unattende-upgrades :sshd-key-only},}
+                              :iptables {:ip-version #{:ipv6},
+                                         :static-rules #{:allow-established-input
+                                                         :log-and-drop-remaining-input
+                                                         :allow-dns-as-client
+                                                         :drop-ping
+                                                         :allow-established-output
+                                                         :log-and-drop-remaining-output
+                                                         :antilockout-ssh},
+                                         :incomming-ports ["80" "443" "20"]}})
+
+(def web-server-default sut/web-server-default)
 
 (deftest test-infra-configure
   (testing
     "test the infra-config creaton"
     (is (thrown? Exception (sut/infra-configuration {})))))
+    

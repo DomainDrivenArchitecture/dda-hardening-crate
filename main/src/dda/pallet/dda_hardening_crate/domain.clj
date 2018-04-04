@@ -72,12 +72,12 @@
                #{:log-and-drop-remaining-input :log-and-drop-remaining-output} #{}))}
             (cond
               (contains? domain-config :appserver) {:allow-ajp-from-ip (:allow-ajp-from-ip (:appserver domain-config))
-                                                    :incomming-ports (concat
-                                                                      incomming-ports
-                                                                      (:additional-incomming-ports (:appserver domain-config)))}
-              (contains? domain-config :webserver) {:incomming-ports (concat
-                                                                      incomming-ports
-                                                                      (:additional-incomming-ports (:webserver domain-config)))}
+                                                    :incomming-ports (into [] (concat
+                                                                               incomming-ports
+                                                                               (:additional-incomming-ports (:appserver domain-config))))}
+              (contains? domain-config :webserver) {:incomming-ports (into [] (concat
+                                                                               incomming-ports
+                                                                               (:additional-incomming-ports (:webserver domain-config))))}
               (contains? domain-config :ssh-only-server) {:incomming-ports (:incomming-ports (:ssh-only-server domain-config))})
             (when (contains? web-server-default :outgoing-ports)
               {:outgoing-ports (:outgoing-ports web-server-default)}))}))}))
