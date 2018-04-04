@@ -14,7 +14,7 @@
   :profiles {:dev {:source-paths ["integration/src"
                                   "test/src"
                                   "uberjar/src"]
-                   :resource-paths ["integration/resoures"
+                   :resource-paths ["integration/resources"
                                     "test/resources"]
                    :dependencies
                    [[org.domaindrivenarchitecture/pallet-aws "0.2.8.2"]

@@ -47,9 +47,9 @@
   [crate-app
    domain-config :- HardeningDomain]
   (let [app-config (app-configuration domain-config)]
-    (core-app/pallet-group-spec)
-    app-config [(config-crate/with-config app-config)
-                with-hardening]))
+    (core-app/pallet-group-spec
+      app-config [(config-crate/with-config app-config)
+                  with-hardening])))
 
 (def crate-app (core-app/make-dda-crate-app
                   :facility infra/facility

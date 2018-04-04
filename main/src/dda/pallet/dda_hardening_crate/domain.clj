@@ -51,34 +51,33 @@
           (when (contains? settings :sshd-key-only)
            :sshd-key-only))}
        (when (contains? web-server-default :iptables)
-        {:iptables
-         (merge
-           {:ip-version
-             (if (contains? (:settings iptables) :ip-v4)
-              (hash-set :ipv4) (hash-set :ipv6))}
-           {:static-rules
-            (hash-set
-             (when (contains? web-server-default :antilockout-ssh)
-              :antilockout-ssh)
-             (when (contains? web-server-default :v4-drop-ping)
-              :drop-ping)
-             (when (contains? web-server-default :allow-dns-as-client)
-              :allow-dns-as-client)
-             (when (contains? web-server-default :allow-ftp-as-client)
-              :allow-ftp-as-client)
-             (when (contains? web-server-default :allow-established)
-              :allow-established-input :allow-established-output)
-             (when (contains? web-server-default :log-and-drop-remaining)
-              :log-and-drop-remaining-input :log-and-drop-remaining-output))}
-           (cond
-             (contains? domain-config :appserver) {:allow-ajp-from-ip (:allow-ajp-from-ip (:appserver domain-config))
-                                                   :incomming-ports (concat
-                                                                     incomming-ports
-                                                                     (:additional-incomming-ports (:appserver domain-config)))}
-             (contains? domain-config :webserver) {:incomming-ports (concat
-                                                                     incomming-ports
-                                                                     (:additional-incomming-ports (:webserver domain-config)))}
-             (contains? domain-config :ssh-only-server) {:incomming-ports (:incomming-ports (:ssh-only-server domain-config))})
-           (when (contains? web-server-default :outgoing-ports)
-             {:outgoing-ports (:outgoing-ports web-server-default)}))}))}))
-
+         {:iptables
+          (merge
+            {:ip-version
+              (if (contains? (:settings iptables) :ip-v4)
+               (hash-set :ipv4) (hash-set :ipv6))}
+            {:static-rules
+             (clojure.set/union
+              (if (contains? (:settings iptables) :antilockout-ssh)
+               #{:antilockout-ssh} #{})
+              (if (contains? (:settings iptables) :v4-drop-ping)
+               #{:drop-ping} #{})
+              (if (contains? (:settings iptables) :allow-dns-as-client)
+               #{:allow-dns-as-client} #{})
+              (if (contains? (:settings iptables) :allow-ftp-as-client)
+               #{:allow-ftp-as-client} #{})
+              (if (contains? (:settings iptables) :allow-established)
+               #{:allow-established-input :allow-established-output} #{})
+              (if (contains? (:settings iptables) :log-and-drop-remaining)
+               #{:log-and-drop-remaining-input :log-and-drop-remaining-output} #{}))}
+            (cond
+              (contains? domain-config :appserver) {:allow-ajp-from-ip (:allow-ajp-from-ip (:appserver domain-config))
+                                                    :incomming-ports (concat
+                                                                      incomming-ports
+                                                                      (:additional-incomming-ports (:appserver domain-config)))}
+              (contains? domain-config :webserver) {:incomming-ports (concat
+                                                                      incomming-ports
+                                                                      (:additional-incomming-ports (:webserver domain-config)))}
+              (contains? domain-config :ssh-only-server) {:incomming-ports (:incomming-ports (:ssh-only-server domain-config))})
+            (when (contains? web-server-default :outgoing-ports)
+              {:outgoing-ports (:outgoing-ports web-server-default)}))}))}))
