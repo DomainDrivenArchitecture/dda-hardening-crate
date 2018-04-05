@@ -35,7 +35,7 @@
               :uberjar {:source-paths ["uberjar/src"]
                         :resource-paths ["uberjar/resources"]
                         :aot :all
-                        :main dda.pallet.dda-hardening-create.main
+                        :main dda.pallet.dda-hardening-crate.main
                         :dependencies [[org.clojure/tools.cli "0.3.5"]
                                        [ch.qos.logback/logback-classic "1.3.0-alpha4"]
                                        [org.slf4j/jcl-over-slf4j "1.8.0-beta2"]]}}

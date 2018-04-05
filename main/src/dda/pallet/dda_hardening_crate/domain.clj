@@ -70,6 +70,6 @@
 
 (s/defn ^:always-validate
   hardening-serverspec-config
-  [domain-config :- HardeningDomainResolved
-   {:file [{:path "/etc/iptables/rules.v4"}
-           {:path "/etc/iptables/rules.v6"}]}])
+  [domain-config :- HardeningDomainResolved]
+  {:file [{:path "/etc/iptables/rules.v4"}
+          {:path "/etc/iptables/rules.v6"}]})

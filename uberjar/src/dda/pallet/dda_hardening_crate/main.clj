@@ -54,7 +54,8 @@
   (System/exit status))
 
 (defn -main [& args]
-  (let [{:keys [options arguments errors summary help]} (cli/parse-opts args cli-options)]
+  (let [{:keys [options arguments errors summary help]} (cli/parse-opts args cli-options)
+        verbose (if (contains? options :verbose) 1 0)]
     (cond
       help (exit 0 (usage summary))
       errors (exit 1 (error-msg errors))
