@@ -18,6 +18,7 @@
   (:require
    [schema.core :as s]
    [dda.pallet.core.app :as core-app]
+   [dda.pallet.dda-serverspec-crate.app :as serverspec]
    [dda.pallet.dda-config-crate.infra :as config-crate]
    [dda.pallet.dda-hardening-crate.infra :as infra]
    [dda.pallet.dda-hardening-crate.domain :as domain]))
@@ -31,7 +32,8 @@
 (def HardeningAppConfig
   {:group-specific-config
    {s/Keyword
-    (merge InfraResult)}})
+    (merge InfraResult
+           serverspec/InfraResult)}})
 
 (s/defn ^:always-validate
   app-configuration :- HardeningAppConfig
@@ -39,8 +41,10 @@
    & options]
   (let [{:keys [group-key]
          :or  {group-key infra/facility}} options]
+    (mu/deep-merge
+     (serverspec/app-configuration (domain/hardening-serverspec-config domain-config) :group-key group-key)
      {:group-specific-config
-      {group-key (domain/infra-configuration domain-config)}}))
+      {group-key (domain/infra-configuration domain-config)}})))
 
 (s/defmethod ^:always-validate
   core-app/group-spec infra/facility
