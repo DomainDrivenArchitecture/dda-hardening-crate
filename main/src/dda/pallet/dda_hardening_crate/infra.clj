@@ -34,7 +34,8 @@
 (defn install-unattended-upgrades []
   (actions/package "unattended-upgrades"))
 
-(s/defn install
+(s/defn ^:always-validate
+  install
   "installation of hardening crate"
   [config :- HardeningInfra]
   (let [{:keys [settings]} config]
@@ -43,7 +44,8 @@
     (when (contains? config :iptables)
       (iptables/install-iptables))))
 
-(s/defn configure
+(s/defn ^:always-validate 
+  configure
   "configuration of hardening crate"
   [config :- HardeningInfra]
   (let [{:keys [settings iptables]} config]

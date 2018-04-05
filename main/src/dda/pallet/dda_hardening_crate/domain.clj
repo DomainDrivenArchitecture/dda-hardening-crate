@@ -67,3 +67,9 @@
                                   :allow-established-output
                                   :log-and-drop-remaining-input}
                   :incomming-ports (:incoming-ports ssh-only-server)}})}))
+
+(s/defn ^:always-validate
+  hardening-serverspec-config
+  [domain-config :- HardeningDomainResolved]
+  {:file [{:path "/etc/iptables/rules.v4"}
+          {:path "/etc/iptables/rules.v6"}]})

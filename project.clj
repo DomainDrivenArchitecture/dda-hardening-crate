@@ -4,7 +4,8 @@
   :license {:name "Apache License, Version 2.0"
             :url "https://www.apache.org/licenses/LICENSE-2.0.html"}
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [dda/dda-pallet "2.1.0"]]
+                 [dda/dda-pallet "2.1.0"]
+                 [dda/dda-serverspec-crate "1.0.4-SNAPSHOT"]]
   :source-paths ["main/src"]
   :resource-paths ["main/resources"]
   :repositories [["snapshots" :clojars
@@ -34,7 +35,7 @@
               :uberjar {:source-paths ["uberjar/src"]
                         :resource-paths ["uberjar/resources"]
                         :aot :all
-                        :main dda.pallet.dda-hardening-create.main
+                        :main dda.pallet.dda-hardening-crate.main
                         :dependencies [[org.clojure/tools.cli "0.3.5"]
                                        [ch.qos.logback/logback-classic "1.3.0-alpha4"]
                                        [org.slf4j/jcl-over-slf4j "1.8.0-beta2"]]}}
