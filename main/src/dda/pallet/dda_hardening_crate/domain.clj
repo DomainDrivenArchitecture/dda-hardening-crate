@@ -25,18 +25,9 @@
 (def HardeningDomain
   (s/either
     {:webserver {:additional-incomming-ports [s/Str]}}
-    {:appserver {:additional-incomming-ports [s/Str]
-                 :allow-ajp-from-ip [s/Str]}}
+    {:all-tier-appserver {:additional-incomming-ports [s/Str]
+                          :allow-ajp-from-ip [s/Str]}}
     {:ssh-only-server {:incomming-ports [s/Str]}}))
-
-(def web-server-default
- {:settings #{:unattende-upgrades :sshd-key-only}
-  :iptables {:ip-version #{:ipv4 :ipv6}
-             :static-rules #{:antilockout-ssh :allow-local :drop-ping
-                             :allow-ftp-as-client :allow-dns-as-client
-                             :allow-established-input :allow-established-output
-                             :log-and-drop-remaining-input :log-and-drop-remaining-output}
-             :incomming-ports ["80" "443"]}})
 
 (def HardeningDomainResolved
   (secret/create-resolved-schema HardeningDomain))
@@ -44,43 +35,35 @@
 (s/defn ^:always-validate
   infra-configuration :- InfraResult
   [domain-config :- HardeningDomainResolved]
-  (let [{:keys [settings iptables incomming-ports]} web-server-default]
+  (let [{:keys [webserver all-tier-appserver ssh-only-server]} domain-config]
     {infra/facility
-     (merge
-       {:settings
-        (hash-set
-          (when (contains? settings :unattende-upgrades)
-           :unattende-upgrades)
-          (when (contains? settings :sshd-key-only)
-           :sshd-key-only))}
-       (when (contains? web-server-default :iptables)
-         {:iptables
-          (merge
-            {:ip-version
-              (if (contains? (:settings iptables) :ip-v4)
-               (hash-set :ipv4) (hash-set :ipv6))}
-            {:static-rules
-             (clojure.set/union
-              (if (contains? (:settings iptables) :antilockout-ssh)
-               #{:antilockout-ssh} #{})
-              (if (contains? (:settings iptables) :v4-drop-ping)
-               #{:drop-ping} #{})
-              (if (contains? (:settings iptables) :allow-dns-as-client)
-               #{:allow-dns-as-client} #{})
-              (if (contains? (:settings iptables) :allow-ftp-as-client)
-               #{:allow-ftp-as-client} #{})
-              (if (contains? (:settings iptables) :allow-established)
-               #{:allow-established-input :allow-established-output} #{})
-              (if (contains? (:settings iptables) :log-and-drop-remaining)
-               #{:log-and-drop-remaining-input :log-and-drop-remaining-output} #{}))}
-            (cond
-              (contains? domain-config :appserver) {:allow-ajp-from-ip (:allow-ajp-from-ip (:appserver domain-config))
-                                                    :incomming-ports (into [] (concat
-                                                                               incomming-ports
-                                                                               (:additional-incomming-ports (:appserver domain-config))))}
-              (contains? domain-config :webserver) {:incomming-ports (into [] (concat
-                                                                               incomming-ports
-                                                                               (:additional-incomming-ports (:webserver domain-config))))}
-              (contains? domain-config :ssh-only-server) {:incomming-ports (:incomming-ports (:ssh-only-server domain-config))})
-            (when (contains? web-server-default :outgoing-ports)
-              {:outgoing-ports (:outgoing-ports web-server-default)}))}))}))
+     (cond
+       (contains? domain-config :webserver)
+       {:settings #{:unattende-upgrades :sshd-key-only}
+        :iptables {:ip-version #{:ipv4 :ipv6}
+                   :static-rules #{:antilockout-ssh :allow-local :drop-ping
+                                   :allow-ftp-as-client :allow-dns-as-client
+                                   :allow-established-output
+                                   :log-and-drop-remaining-input}
+                   :incomming-ports (into
+                                      ["80" "443"]
+                                      (:additional-incoming-ports webserver))}}
+       (contains? domain-config :all-tier-appserver)
+       {:settings #{:unattende-upgrades :sshd-key-only}
+        :iptables {:ip-version #{:ipv4 :ipv6}
+                   :static-rules #{:antilockout-ssh :allow-local :drop-ping
+                                   :allow-ftp-as-client :allow-dns-as-client
+                                   :allow-established-output
+                                   :log-and-drop-remaining-input}
+                   :incomming-ports (into
+                                      ["80" "443"]
+                                      (:additional-incoming-ports all-tier-appserver))}
+                  :allow-ajp-from-ip (:allow-ajp-from-ip all-tier-appserver)}
+      (contains? domain-config :ssh-only-server)
+      {:settings #{:unattende-upgrades :sshd-key-only}
+       :iptables {:ip-version #{:ipv4 :ipv6}
+                  :static-rules #{:antilockout-ssh :allow-local :drop-ping
+                                  :allow-ftp-as-client :allow-dns-as-client
+                                  :allow-established-output
+                                  :log-and-drop-remaining-input}
+                  :incomming-ports (:incoming-ports ssh-only-server)}})}))
