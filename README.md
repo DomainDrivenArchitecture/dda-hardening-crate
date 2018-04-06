@@ -6,9 +6,9 @@
 
 ## Jump to
 [Usage](#usage)
-[Reference: Targets](#targets)
-[Reference: Domain-API](#domain-api)
-[Reference: Infra-API](#infra-api)
+[Reference-Targets](#targets)
+[Reference-Domain-API](#domain-api)
+[Reference-Infra-API](#infra-api)
 [Compatibility](#compatibility)
 [License](#license)
 
