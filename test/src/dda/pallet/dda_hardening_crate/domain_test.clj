@@ -30,21 +30,18 @@
 (def config-3
   {:ssh-only-server {:incomming-ports ["80"]}})
 
-(def output-1 {:dda-hardening {:settings #{:unattende-upgrades :sshd-key-only},}
-                              :iptables {:ip-version #{:ipv6},
-                                         :static-rules #{:allow-established-input
-                                                         :log-and-drop-remaining-input
-                                                         :allow-dns-as-client
-                                                         :drop-ping
-                                                         :allow-established-output
-                                                         :log-and-drop-remaining-output
-                                                         :antilockout-ssh},
-                                         :incomming-ports ["80" "443" "20"]}})
-
-(def web-server-default sut/web-server-default)
+(def output-1 {:dda-hardening {:settings #{:unattende-upgrades :sshd-key-only},
+                               :iptables {:ip-version #{:ipv6},
+                                          :static-rules #{:allow-established-input
+                                                          :log-and-drop-remaining-input
+                                                          :allow-dns-as-client
+                                                          :drop-ping
+                                                          :allow-established-output
+                                                          :log-and-drop-remaining-output
+                                                          :antilockout-ssh},
+                                          :incomming-ports ["80" "443" "20"]}}})
 
 (deftest test-infra-configure
   (testing
     "test the infra-config creaton"
     (is (thrown? Exception (sut/infra-configuration {})))))
-    
