@@ -47,7 +47,7 @@
                                    :log-and-drop-remaining-input}
                    :incomming-ports (into
                                       ["80" "443"]
-                                      (:additional-incoming-ports webserver))}}
+                                      (:additional-incomming-ports webserver))}}
        (contains? domain-config :all-tier-appserver)
        {:settings #{:unattende-upgrades :sshd-key-only}
         :iptables {:ip-version #{:ipv4 :ipv6}
@@ -57,8 +57,8 @@
                                    :log-and-drop-remaining-input}
                    :incomming-ports (into
                                       ["80" "443"]
-                                      (:additional-incoming-ports all-tier-appserver))}
-                  :allow-ajp-from-ip (:allow-ajp-from-ip all-tier-appserver)}
+                                      (:additional-incomming-ports all-tier-appserver))
+                   :allow-ajp-from-ip (:allow-ajp-from-ip all-tier-appserver)}}
       (contains? domain-config :ssh-only-server)
       {:settings #{:unattende-upgrades :sshd-key-only}
        :iptables {:ip-version #{:ipv4 :ipv6}
@@ -66,7 +66,7 @@
                                   :allow-ftp-as-client :allow-dns-as-client
                                   :allow-established-output
                                   :log-and-drop-remaining-input}
-                  :incomming-ports (:incoming-ports ssh-only-server)}})}))
+                  :incomming-ports (:incomming-ports ssh-only-server)}})}))
 
 (s/defn ^:always-validate
   hardening-serverspec-config
