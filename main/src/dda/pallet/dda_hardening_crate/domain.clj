@@ -24,10 +24,13 @@
 
 (def HardeningDomain
   (s/either
-    {:webserver {:additional-incomming-ports [s/Str]}}
-    {:all-tier-appserver {:additional-incomming-ports [s/Str]
-                          :allow-ajp-from-ip [s/Str]}}
-    {:ssh-only-server {:incomming-ports [s/Str]}}))
+    {:webserver                ; block incoming traffic except 22, 80 & 443
+          {:additional-incomming-ports [s/Str]}}
+    {:all-tier-appserver       ; block incoming traffic except 22, 80 & 443, allow ajp from known ip
+        {:additional-incomming-ports [s/Str]
+         :allow-ajp-from-ip [s/Str]}}
+    {:ssh-only-server          ; block incoming traffic except 22
+        {:incomming-ports [s/Str]}}))
 
 (def HardeningDomainResolved
   (secret/create-resolved-schema HardeningDomain))

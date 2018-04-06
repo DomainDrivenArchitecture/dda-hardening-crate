@@ -22,16 +22,19 @@
     [pallet.crate :as crate]
     [clojure.string :as string]))
 
-(def IpVersion (s/enum :ipv6 :ipv4))
+(def IpVersion           ; for which ip-versions ip-tables should be applied.
+  (s/enum :ipv6 :ipv4))  ; we apply the same rules to both ip-versions
 
-(def IpTables {:ip-version (hash-set IpVersion)
-               :static-rules (hash-set (s/enum :antilockout-ssh :allow-local :drop-ping
-                                               :allow-ftp-as-client :allow-dns-as-client
-                                               :allow-established-input :allow-established-output
-                                               :log-and-drop-remaining-input :log-and-drop-remaining-output))
-               (s/optional-key :allow-ajp-from-ip) [s/Str] ;incoming ip address
-               (s/optional-key :incomming-ports) [s/Str]
-               (s/optional-key :outgoing-ports) [s/Str]}) ; allow-destination-port)
+
+(def IpTables
+  {:ip-version (hash-set IpVersion)
+   :static-rules (hash-set (s/enum :antilockout-ssh :allow-local :drop-ping
+                                   :allow-ftp-as-client :allow-dns-as-client
+                                   :allow-established-input :allow-established-output
+                                   :log-and-drop-remaining-input :log-and-drop-remaining-output))
+   (s/optional-key :allow-ajp-from-ip) [s/Str] ;incoming ip address
+   (s/optional-key :incomming-ports) [s/Str]
+   (s/optional-key :outgoing-ports) [s/Str]}) ; allow-destination-port)
 
 (s/defn
   allow-ajp-from-single-ip :- [s/Str]
