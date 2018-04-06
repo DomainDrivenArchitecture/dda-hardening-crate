@@ -34,7 +34,7 @@
 (defn usage [options-summary]
   (str/join
    \newline
-   ["A crate for harden multiple server nodes. Hardening can be applied & configured local or remote against servers."
+   ["A crate for harden server nodes. Hardening provides ssh-hardening, management of unattended upgrades & elaborated iptable rules."
     ""
     "Usage: java -jar dda-hardening-crate-[version]-standalone.jar [options] hardening.edn"
     ""
