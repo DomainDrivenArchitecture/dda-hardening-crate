@@ -28,7 +28,8 @@
    ["-s" "--serverspec"]
    ["-c" "--configure"]
    ["-t" "--targets targets.edn" "edn file containing the targets to install on."
-    :default "localhost-target.edn"]])
+    :default "localhost-target.edn"]
+   ["-v" "--verbose"]])
 
 (defn usage [options-summary]
   (str/join
