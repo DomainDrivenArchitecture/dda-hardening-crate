@@ -1,0 +1,2 @@
+{:existing [{:node-name "test-vm1"
+             :node-ip "127.0.0.1"}]}
