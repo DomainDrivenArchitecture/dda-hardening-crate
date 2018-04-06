@@ -1,4 +1,4 @@
-(defproject dda/dda-hardening-crate "1.0.0"
+(defproject dda/dda-hardening-crate "1.0.1-SNAPSHOT"
   :description "The dda hardening crate"
   :url "https://domaindrivenarchitecture.org"
   :license {:name "Apache License, Version 2.0"
@@ -8,10 +8,10 @@
                  [dda/dda-serverspec-crate "1.0.5"]]
   :source-paths ["main/src"]
   :resource-paths ["main/resources"]
-  :repositories [["snapshots" :clojars
-                  ["releases" :clojars]]]
-  :deploy-repositories [["snapshots" :clojars
-                         ["releases" :clojars]]]
+  :repositories [["snapshots" :clojars]
+                 ["releases" :clojars]]
+  :deploy-repositories [["snapshots" :clojars]
+                        ["releases" :clojars]]
   :profiles {:dev {:source-paths ["integration/src"
                                   "test/src"
                                   "uberjar/src"]
