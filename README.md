@@ -20,7 +20,7 @@
 * sshd hardening
 
 ## Usage
-1. **Download the jar-file** from the releases page of this repository (e.g. `curl -L -o /serverspec.jar https://github.com/DomainDrivenArchitecture/dda-hardening-crate/releases/download/1.0.0/dda-hardening-crate-1.0.0-standalone.jar`)
+1. **Download the jar-file** from the releases page of this repository (e.g. `curl -L -o hardening.jar https://github.com/DomainDrivenArchitecture/dda-hardening-crate/releases/download/1.0.1/dda-hardening-crate-1.0.1-standalone.jar`)
 2. **Create the ```hardening.edn``` configruration** file in the same folder where you saved the jar-file. The ```hardening.edn``` file specifies the hardenings to apply. You may use the following example as a starting point and adjust it according to your own needs:
 
 ```clojure
