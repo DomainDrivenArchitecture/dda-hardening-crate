@@ -46,7 +46,7 @@
         :iptables {:ip-version #{:ipv4 :ipv6}
                    :static-rules #{:antilockout-ssh :allow-local :drop-ping
                                    :allow-ftp-as-client :allow-dns-as-client
-                                   :allow-established-output
+                                   :allow-established-output :allow-established-input
                                    :log-and-drop-remaining-input}
                    :incomming-ports (into
                                       ["80" "443"]
@@ -56,7 +56,7 @@
         :iptables {:ip-version #{:ipv4 :ipv6}
                    :static-rules #{:antilockout-ssh :allow-local :drop-ping
                                    :allow-ftp-as-client :allow-dns-as-client
-                                   :allow-established-output
+                                   :allow-established-output :allow-established-input
                                    :log-and-drop-remaining-input}
                    :incomming-ports (into
                                       ["80" "443"]
@@ -67,7 +67,7 @@
        :iptables {:ip-version #{:ipv4 :ipv6}
                   :static-rules #{:antilockout-ssh :allow-local :drop-ping
                                   :allow-ftp-as-client :allow-dns-as-client
-                                  :allow-established-output
+                                  :allow-established-output :allow-established-input
                                   :log-and-drop-remaining-input}
                   :incomming-ports (:incomming-ports ssh-only-server)}})}))
 

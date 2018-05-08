@@ -35,7 +35,7 @@
                 :iptables {:ip-version #{:ipv4 :ipv6}
                            :static-rules #{:antilockout-ssh :allow-local :drop-ping
                                            :allow-ftp-as-client :allow-dns-as-client
-                                           :allow-established-output
+                                           :allow-established-output :allow-established-input
                                            :log-and-drop-remaining-input}
                            :incomming-ports ["80" "443" "20"]}}})
 
@@ -44,7 +44,7 @@
                 :iptables {:ip-version #{:ipv4 :ipv6}
                            :static-rules #{:antilockout-ssh :allow-local :drop-ping
                                            :allow-ftp-as-client :allow-dns-as-client
-                                           :allow-established-output
+                                           :allow-established-output :allow-established-input
                                            :log-and-drop-remaining-input}
                            :incomming-ports ["80" "443" "20"]
                            :allow-ajp-from-ip ["192.168.0.1"]}}})
@@ -54,7 +54,7 @@
                 :iptables {:ip-version #{:ipv4 :ipv6}
                            :static-rules #{:antilockout-ssh :allow-local :drop-ping
                                            :allow-ftp-as-client :allow-dns-as-client
-                                           :allow-established-output
+                                           :allow-established-output :allow-established-input
                                            :log-and-drop-remaining-input}
                            :incomming-ports ["20"]}}})
 
@@ -62,6 +62,6 @@
   (testing
     "test the infra-config creaton"
     (is (thrown? Exception (sut/infra-configuration {})))
-    (is (= (sut/infra-configuration config-1) output-1))
-    (is (= (sut/infra-configuration config-2) output-2))
-    (is (= (sut/infra-configuration config-3) output-3))))
+    (is (= output-1 (sut/infra-configuration config-1)))
+    (is (= output-2 (sut/infra-configuration config-2)))
+    (is (= output-3 (sut/infra-configuration config-3)))))
