@@ -1,10 +1,10 @@
-(defproject dda/dda-hardening-crate "1.0.2-SNAPSHOT"
+(defproject dda/dda-hardening-crate "1.0.2"
   :description "The dda hardening crate"
   :url "https://domaindrivenarchitecture.org"
   :license {:name "Apache License, Version 2.0"
             :url "https://www.apache.org/licenses/LICENSE-2.0.html"}
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [dda/dda-pallet "2.1.1"]
+                 [dda/dda-pallet "2.1.2"]
                  [dda/dda-serverspec-crate "1.0.5"]]
   :source-paths ["main/src"]
   :resource-paths ["main/resources"]
@@ -36,7 +36,7 @@
                         :resource-paths ["uberjar/resources"]
                         :aot :all
                         :main dda.pallet.dda-hardening-crate.main
-                        :dependencies [[org.clojure/tools.cli "0.3.5"]
+                        :dependencies [[org.clojure/tools.cli "0.3.7"]
                                        [ch.qos.logback/logback-classic "1.3.0-alpha4"]
                                        [org.slf4j/jcl-over-slf4j "1.8.0-beta2"]]}}
    :local-repo-classpath true)
